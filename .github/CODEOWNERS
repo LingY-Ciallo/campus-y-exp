@@ -1,4 +1,4 @@
 # Both maintainers are requested for every file, including this policy and workflows.
-# CODEOWNERS alone accepts one owner's approval. The main ruleset requires TWO approvals.
+# The main ruleset requires ONE Code Owner approval from either maintainer.
 # Keep repository write/admin access limited to these two maintainers.
 * @LingY-Ciallo @LaZYKING233
