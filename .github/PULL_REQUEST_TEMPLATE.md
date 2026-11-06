@@ -1,6 +1,6 @@
 ## 实验名称与用途
 
-<!-- 目标为 main；需要 LingY-Ciallo 和 LaZYKING233 审批、Template tests 通过且讨论解决。新提交会使旧批准失效。作者不能审批自己的 PR。 -->
+<!-- 目标为 main；需要 LingY-Ciallo 或 LaZYKING233 任意一人审批、Template tests 通过且讨论解决。新提交会使旧批准失效。作者不能审批自己的 PR。 -->
 
 <!-- 写清本次新增/修改什么实验。 -->
 

@@ -150,14 +150,14 @@ npm test
 
 完整图形操作、Git 名词、可复制命令、同步更新、冲突处理与常见问题都在 [GitHub 新手指南](docs/GITHUB-BEGINNER.md)。只下载 ZIP 可以运行模板，但要贡献代码，推荐使用 Fork + Clone。
 
-通用模板位于仓库根目录；新实验放在 `experiments/<英文短横线名称>/`，详见 [贡献约定](CONTRIBUTING.md)。主分支通过 PR 更新，需要 `LingY-Ciallo` 和 `LaZYKING233` 两位维护者审批，CI 通过且讨论解决后才能合并；新提交后需重新审批。GitHub 不允许作者自批，严格双人规则也适用于维护者发起的 PR。安全规则及权限边界见 [SECURITY.md](SECURITY.md)。
+通用模板位于仓库根目录；新实验放在 `experiments/<英文短横线名称>/`，详见 [贡献约定](CONTRIBUTING.md)。主分支通过 PR 更新，需要 `LingY-Ciallo` 或 `LaZYKING233` 任意一位维护者审批，CI 通过且讨论解决后才能合并；新提交后需重新审批。GitHub 不允许作者自批，因此维护者自己发起的 PR 由另一位维护者审。安全规则及权限边界见 [SECURITY.md](SECURITY.md)。
 
 ## 本次内容（2026-11-06）
 
 - 新增可独立运行、可交给 AI 改写的实验页模板；与校园小音 v4.3.3 的现有实验页视觉对齐。
 - 提供多主题预览、参数与测量表单、纯计算模块、校验、结果明细及复制。
 - 提供测试项目导入、AI 需求描述、主项目接入与 GitHub / VS Code / Git 贡献教程。
-- 首次上传至 campus-y-exp；新增贡献约定、CODEOWNERS、只读 CI、固定 SHA 的官方 Actions 和 Dependabot 配置，配置主分支双人审核与禁止强推/删除规则。
+- 首次上传至 campus-y-exp；新增贡献约定、CODEOWNERS、只读 CI、固定 SHA 的官方 Actions 和 Dependabot 配置，配置两位指定维护者任选一人审核与禁止直推/强推/删除主分支规则。
 - 验证记录见 [VALIDATION.md](docs/VALIDATION.md)。
 
 ## 官方参考
