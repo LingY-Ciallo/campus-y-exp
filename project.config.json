@@ -1,0 +1,21 @@
+{
+  "description": "校园小音实验页面开发模板（独立离线示例）",
+  "miniprogramRoot": "./",
+  "compileType": "miniprogram",
+  "appid": "touristappid",
+  "projectname": "campus-y-exp-template",
+  "setting": { "es6": true, "enhance": true, "minified": true },
+  "packOptions": {
+    "ignore": [
+      { "type": "folder", "value": "docs" },
+      { "type": "folder", "value": "tests" },
+      { "type": "folder", "value": ".github" },
+      { "type": "folder", "value": ".git" },
+      { "type": "file", "value": "README.md" },
+      { "type": "file", "value": "AGENTS.md" },
+      { "type": "file", "value": "CONTRIBUTING.md" },
+      { "type": "file", "value": "SECURITY.md" },
+      { "type": "file", "value": "package.json" }
+    ]
+  }
+}

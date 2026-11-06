@@ -1,0 +1,92 @@
+<view class="app-theme theme-{{appearanceTheme}} accent-{{appearanceAccent}}">
+  <view class="container ui-page experiment-page">
+    <view class="ui-page-heading">
+      <text class="ui-page-kicker">实验工具 · 开发模板</text>
+      <text class="ui-page-title">重复测量数据处理</text>
+      <text class="ui-page-description">记录每一次测量，让数据和结果清晰有序。</text>
+    </view>
+
+    <!-- 只有独立演示壳显示。接回主项目后自动继承主题，不出现预览开关。 -->
+    <view class="section preview-section" wx:if="{{demoMode}}">
+      <view class="section-heading"><text class="section-title">外观预览</text><text class="status-tag">仅开发示例</text></view>
+      <view class="preview-grid">
+        <picker mode="selector" range="{{themeNames}}" value="{{themeIndex}}" bindchange="onThemeChange" aria-label="选择预览主题">
+          <view class="picker-control"><text>主题</text><text class="picker-value">{{themeNames[themeIndex]}} ›</text></view>
+        </picker>
+        <picker mode="selector" range="{{accentNames}}" value="{{accentIndex}}" bindchange="onAccentChange" aria-label="选择强调色">
+          <view class="picker-control"><text>强调色</text><text class="picker-value">{{accentNames[accentIndex]}} ›</text></view>
+        </picker>
+      </view>
+      <text class="helper-text">莫奈、小音使用各自配色；浅色、深色支持切换强调色。</text>
+    </view>
+
+    <view class="section">
+      <view class="section-heading"><text class="section-title">实验参数</text><text class="step-label">01</text></view>
+      <view class="field-grid">
+        <view class="field-item">
+          <label for="measurement-unit" class="field-label">测量单位</label>
+          <input id="measurement-unit" class="input" type="text" maxlength="16" value="{{unit}}" data-field="unit" bindinput="onFieldInput" placeholder="如 mm、s、Ω" placeholder-class="input-placeholder" aria-label="测量单位" />
+        </view>
+        <view class="field-item">
+          <label for="reference-value" class="field-label">参考值（选填）</label>
+          <input id="reference-value" class="input" type="text" maxlength="32" value="{{referenceValue}}" data-field="referenceValue" bindinput="onFieldInput" placeholder="用于计算相对误差" placeholder-class="input-placeholder" aria-label="参考值，选填" />
+        </view>
+      </view>
+      <text class="helper-text">所有数据使用同一单位。支持负数与科学计数法，例如 -1.2、3.5e-3。</text>
+    </view>
+
+    <view class="section">
+      <view class="section-heading"><text class="section-title">测量记录</text><text class="status-tag">{{rows.length}} 组数据</text></view>
+      <text class="helper-text record-help">填写 {{minRows}}～{{maxRows}} 组真实测量值，空白行请删除或补齐。</text>
+      <view class="record-row" wx:for="{{rows}}" wx:key="id">
+        <label for="measurement-{{item.id}}" class="record-index">{{index + 1}}</label>
+        <input id="measurement-{{item.id}}" class="input record-input" type="text" maxlength="32" value="{{item.value}}" data-index="{{index}}" bindinput="onMeasurementInput" placeholder="第 {{index + 1}} 次测量" placeholder-class="input-placeholder" aria-label="第 {{index + 1}} 次测量值" />
+        <text class="unit-label">{{unit || '单位'}}</text>
+        <button class="remove-button" data-id="{{item.id}}" bindtap="removeRow" disabled="{{rows.length &lt;= minRows}}" aria-label="删除第 {{index + 1}} 组">删除</button>
+      </view>
+      <view class="record-actions">
+        <button class="secondary-button" bindtap="addRow" disabled="{{rows.length >= maxRows}}">添加一组</button>
+        <button class="secondary-button" bindtap="loadExample">载入示例</button>
+      </view>
+    </view>
+
+    <view class="action-section">
+      <view class="error-message" wx:if="{{error}}" role="alert">{{error}}</view>
+      <button class="calculate-btn" bindtap="calculate">计算实验结果</button>
+      <button class="reset-button" bindtap="resetForm">清空本次数据</button>
+    </view>
+
+    <view class="section result-section" wx:if="{{result}}">
+      <view class="section-heading"><text class="section-title">实验结果</text><text class="status-tag">{{result.count}} 次测量</text></view>
+      <view class="result-summary">
+        <text class="result-caption">平均值 x̄</text>
+        <view class="result-main"><text class="result-number">{{result.mean}}</text><text class="result-unit">{{result.unit}}</text></view>
+      </view>
+      <view class="result-row"><text class="result-label">样本标准差 s</text><text class="value">{{result.standardDeviation}} {{result.unit}}</text></view>
+      <view class="result-row"><text class="result-label">A 类标准不确定度 uA</text><text class="value">{{result.uncertaintyA}} {{result.unit}}</text></view>
+      <view class="result-row" wx:if="{{result.hasRelativeError}}"><text class="result-label">相对误差</text><text class="value">{{result.relativeError}}%</text></view>
+      <text class="helper-text">显示保留 6 位有效数字。uA 为平均值的 A 类标准不确定度，未合成仪器等 B 类分量。</text>
+      <button class="secondary-button copy-button" bindtap="copyResult">复制结果与原始数据</button>
+    </view>
+
+    <view class="section" wx:if="{{result}}">
+      <view class="section-heading"><text class="section-title">计算明细</text><text class="step-label">可核对</text></view>
+      <text class="helper-text record-help">左右滑动查看完整表格。偏差平方的单位为 {{result.unit}}²。</text>
+      <scroll-view class="experiment-table-scroll" scroll-x="{{true}}">
+        <view class="detail-table">
+          <view class="detail-row table-heading"><text class="detail-cell index-cell">序号</text><text class="detail-cell">测量值 xi</text><text class="detail-cell">(xi − x̄)²</text></view>
+          <view class="detail-row" wx:for="{{result.details}}" wx:key="index">
+            <text class="detail-cell index-cell">{{item.index}}</text><text class="detail-cell">{{item.value}}</text><text class="detail-cell">{{item.squaredDeviation}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="formula-note">
+      <text class="note-title">本示例使用的公式</text>
+      <text>x̄ = Σxi / n</text><text>s = √[Σ(xi − x̄)² / (n − 1)]</text><text>uA = s / √n</text>
+      <text>相对误差 = |(x̄ − 参考值) / 参考值| × 100%</text>
+      <text class="helper-text">单位栏只标注单位，不自动换算。页面数据仅在本次打开期间保留，离开前可复制结果。</text>
+    </view>
+  </view>
+</view>
