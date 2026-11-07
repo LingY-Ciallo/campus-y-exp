@@ -1,0 +1,4 @@
+/* 仅独立示例加载简化主题。主项目继续使用自己的全局主题与权益系统。 */
+@import "./styles/demo-themes.wxss";
+page { min-height: 100%; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+button::after { border: 0; }

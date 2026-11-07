@@ -1,0 +1,141 @@
+<view class="app-theme theme-{{appearanceTheme}} accent-{{appearanceAccent}}">
+  <view class="container ui-page experiment-page">
+    <view class="ui-page-heading">
+      <text class="ui-page-kicker">实验工具 · 大学物理实验</text>
+      <text class="ui-page-title">弯曲法测量杨氏模量</text>
+      <text class="ui-page-description">霍尔位置传感器测微小挠度，拟合灵敏度后求杨氏模量。</text>
+    </view>
+
+    <view class="section preview-section" wx:if="{{demoMode}}">
+      <view class="section-heading"><text class="section-title">外观预览</text><text class="status-tag">仅开发示例</text></view>
+      <view class="preview-grid">
+        <picker mode="selector" range="{{themeNames}}" value="{{themeIndex}}" bindchange="onThemeChange" aria-label="选择预览主题">
+          <view class="picker-control"><text>主题</text><text class="picker-value">{{themeNames[themeIndex]}} ›</text></view>
+        </picker>
+        <picker mode="selector" range="{{accentNames}}" value="{{accentIndex}}" bindchange="onAccentChange" aria-label="选择强调色">
+          <view class="picker-control"><text>强调色</text><text class="picker-value">{{accentNames[accentIndex]}} ›</text></view>
+        </picker>
+      </view>
+      <text class="helper-text">莫奈、小音使用各自配色；浅色、深色支持切换强调色。</text>
+    </view>
+
+    <view class="section">
+      <view class="section-heading">
+        <text class="section-title">传感器定标</text>
+        <text class="status-tag">{{calibration.length}} 个点</text>
+      </view>
+      <text class="helper-text record-help">等间隔加砝码，逐个记录梁的位置 Z 与霍尔电压 U。U–Z 拟合直线的斜率就是灵敏度 K。</text>
+      <view class="record-row" wx:for="{{calibration}}" wx:key="id">
+        <text class="record-index">{{index + 1}}</text>
+        <input class="input record-input" type="text" maxlength="16" value="{{item.z}}" data-list="calibration" data-index="{{index}}" data-key="z" bindinput="onInput" placeholder="Z/mm" placeholder-class="input-placeholder" aria-label="第 {{index + 1}} 点位置" />
+        <input class="input record-input" type="text" maxlength="16" value="{{item.u}}" data-list="calibration" data-index="{{index}}" data-key="u" bindinput="onInput" placeholder="U/mV" placeholder-class="input-placeholder" aria-label="第 {{index + 1}} 点电压" />
+        <button class="remove-button" data-list="calibration" data-id="{{item.id}}" bindtap="removeRow" disabled="{{calibration.length === minCalibration}}" aria-label="删除第 {{index + 1}} 点">删</button>
+      </view>
+      <view class="record-actions">
+        <button class="secondary-button" data-list="calibration" bindtap="addRow" disabled="{{calibration.length === maxCalibration}}">加一点</button>
+        <button class="secondary-button" bindtap="loadExample">载入示例</button>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-heading"><text class="section-title">梁的参数</text><text class="step-label">02</text></view>
+      <view class="field-item">
+        <text class="field-label">材料</text>
+        <input class="input" type="text" maxlength="12" value="{{material}}" data-field="material" bindinput="onInput" placeholder="如 铸铁 / 黄铜" placeholder-class="input-placeholder" aria-label="材料名称" />
+      </view>
+      <text class="helper-text record-help">每个量测三次，留空的格子自动忽略。</text>
+      <view class="record-row">
+        <text class="record-index">a</text>
+        <input class="input record-input" type="text" maxlength="16" value="{{thickness[0]}}" data-list="thickness" data-index="0" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" />
+        <input class="input record-input" type="text" maxlength="16" value="{{thickness[1]}}" data-list="thickness" data-index="1" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" />
+        <input class="input record-input" type="text" maxlength="16" value="{{thickness[2]}}" data-list="thickness" data-index="2" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" />
+      </view>
+      <view class="record-row">
+        <text class="record-index">b</text>
+        <input class="input record-input" type="text" maxlength="16" value="{{width[0]}}" data-list="width" data-index="0" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" />
+        <input class="input record-input" type="text" maxlength="16" value="{{width[1]}}" data-list="width" data-index="1" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" />
+        <input class="input record-input" type="text" maxlength="16" value="{{width[2]}}" data-list="width" data-index="2" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" />
+      </view>
+      <view class="record-row">
+        <text class="record-index">d</text>
+        <input class="input record-input" type="text" maxlength="16" value="{{span[0]}}" data-list="span" data-index="0" bindinput="onInput" placeholder="cm" placeholder-class="input-placeholder" />
+        <input class="input record-input" type="text" maxlength="16" value="{{span[1]}}" data-list="span" data-index="1" bindinput="onInput" placeholder="cm" placeholder-class="input-placeholder" />
+        <input class="input record-input" type="text" maxlength="16" value="{{span[2]}}" data-list="span" data-index="2" bindinput="onInput" placeholder="cm" placeholder-class="input-placeholder" />
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-heading"><text class="section-title">负荷与挠度</text><text class="step-label">03</text></view>
+      <view class="field-grid">
+        <view class="field-item">
+          <text class="field-label">负荷 M（g）</text>
+          <input class="input" type="text" maxlength="16" value="{{massG}}" data-field="massG" bindinput="onInput" placeholder="60" placeholder-class="input-placeholder" aria-label="负荷质量" />
+        </view>
+        <view class="field-item">
+          <text class="field-label">公认值 Y（Pa，选填）</text>
+          <input class="input" type="text" maxlength="16" value="{{referenceY}}" data-field="referenceY" bindinput="onInput" placeholder="1.815e11" placeholder-class="input-placeholder" aria-label="杨氏模量公认值" />
+        </view>
+      </view>
+      <text class="helper-text record-help">ΔZ 可直测填写；只填 ΔU 时按 ΔZ = ΔU / K 自动换算。</text>
+      <view class="record-row" wx:for="{{deflection}}" wx:key="id">
+        <text class="record-index">{{index + 1}}</text>
+        <input class="input record-input" type="text" maxlength="16" value="{{item.dz}}" data-list="deflection" data-index="{{index}}" data-key="dz" bindinput="onInput" placeholder="ΔZ/mm" placeholder-class="input-placeholder" aria-label="第 {{index + 1}} 组挠度" />
+        <input class="input record-input" type="text" maxlength="16" value="{{item.du}}" data-list="deflection" data-index="{{index}}" data-key="du" bindinput="onInput" placeholder="ΔU/mV" placeholder-class="input-placeholder" aria-label="第 {{index + 1}} 组电压变化" />
+        <button class="remove-button" data-list="deflection" data-id="{{item.id}}" bindtap="removeRow" disabled="{{deflection.length === minDeflection}}" aria-label="删除第 {{index + 1}} 组">删</button>
+      </view>
+      <view class="record-actions">
+        <button class="secondary-button" data-list="deflection" bindtap="addRow" disabled="{{deflection.length === maxDeflection}}">加一组</button>
+      </view>
+    </view>
+
+    <view class="action-section">
+      <view class="error-message" wx:if="{{error}}" role="alert">{{error}}</view>
+      <button class="calculate-btn" bindtap="calculate">计算杨氏模量</button>
+      <button class="reset-button" bindtap="resetForm">清空本次数据</button>
+    </view>
+
+    <view class="section result-section" wx:if="{{result}}">
+      <view class="section-heading">
+        <text class="section-title">实验结果</text>
+        <text class="status-tag">{{result.material}}</text>
+      </view>
+      <view class="result-summary">
+        <text class="result-caption">杨氏模量 Y</text>
+        <view class="result-main"><text class="result-number">{{result.yGpaText}}</text><text class="result-unit">GPa</text></view>
+      </view>
+      <view class="result-row"><text class="result-label">即</text><text class="value">{{result.yExponential}} Pa</text></view>
+      <view class="result-row"><text class="result-label">灵敏度 K</text><text class="value">{{result.kText}} V/m</text></view>
+      <view class="result-row"><text class="result-label">线性度 R²</text><text class="value">{{result.r2Text}}</text></view>
+      <view class="result-row"><text class="result-label">平均挠度 ΔZ</text><text class="value">{{result.deltaZAvgText}} mm</text></view>
+      <view class="result-row" wx:if="{{result.hasReference}}"><text class="result-label">与公认值相比</text><text class="value">{{result.errorText}}%</text></view>
+      <text class="helper-text">Y = d³Mg / (4a³bΔZ)。d 按 cm、a 与 b 按 mm、ΔZ 按 mm 输入，内部统一换算。</text>
+    </view>
+
+    <view class="section" wx:if="{{result}}">
+      <view class="section-heading"><text class="section-title">计算明细</text><text class="step-label">可核对</text></view>
+      <text class="helper-text record-help">「ΔU/K」表示该组 ΔZ 由 ΔU 换算得到，「ΔZ 直测」为直接填写。</text>
+      <scroll-view class="experiment-table-scroll" scroll-x="{{true}}">
+        <view class="detail-table">
+          <view class="detail-row table-heading">
+            <text class="detail-cell index-cell">序号</text>
+            <text class="detail-cell">挠度来源</text>
+            <text class="detail-cell">ΔZ/mm</text>
+          </view>
+          <view class="detail-row" wx:for="{{result.details}}" wx:key="index">
+            <text class="detail-cell index-cell">{{item.index}}</text>
+            <text class="detail-cell">{{item.from}}</text>
+            <text class="detail-cell">{{item.deltaZText}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <button class="secondary-button copy-button" bindtap="copyResult">复制结果与原始数据</button>
+    </view>
+
+    <view class="formula-note">
+      <text class="note-title">本页使用的公式</text>
+      <text>ΔZ = ΔU / K</text>
+      <text>Y = d³ · M · g / (4 · a³ · b · ΔZ)</text>
+      <text class="helper-text">K 由 U–Z 最小二乘拟合得到；g 取 9.8 m/s²；数据不联网、不自动保存。</text>
+    </view>
+  </view>
+</view>
