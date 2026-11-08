@@ -1,0 +1,1 @@
+{ "desc": "独立实验示例", "rules": [{ "action": "disallow", "page": "*" }] }

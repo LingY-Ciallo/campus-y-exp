@@ -30,3 +30,6 @@ jobs:
           node-version: '22'
       - name: Run calculation and page tests
         run: npm test
+
+      - name: Run bending-modulus demo tests
+        run: npm test --prefix experiments/bending-modulus/demo
