@@ -19,6 +19,28 @@ function average(values) {
   return numbers.reduce((sum, value) => sum + value, 0) / numbers.length;
 }
 
+// 尺寸类字段：只忽略真正空白的格子，填了的内容必须是有限正数
+function positiveAverage(values, label, unit) {
+  const list = values || [];
+  let sum = 0;
+  let count = 0;
+  for (let i = 0; i < list.length; i += 1) {
+    const text = list[i] === null || list[i] === undefined ? '' : String(list[i]).trim();
+    if (!text) continue;
+    const number = toNumber(text);
+    if (!Number.isFinite(number)) {
+      return { error: `${label} 第 ${i + 1} 次测量要填数字（${unit}）` };
+    }
+    if (!(number > 0)) {
+      return { error: `${label} 第 ${i + 1} 次测量必须大于 0（${unit}）` };
+    }
+    sum += number;
+    count += 1;
+  }
+  if (!count) return { error: `${label}至少要填一次测量（${unit}）` };
+  return { value: sum / count, count };
+}
+
 function trim(value, digits) {
   if (!Number.isFinite(value)) return '—';
   return String(Number(value.toPrecision(digits || 6)));
@@ -77,56 +99,75 @@ function compute(input) {
   const k = Math.abs(fit.slope);
   if (!(k > 0)) return { error: '灵敏度 K 为 0，请检查定标数据' };
 
-  const thickness = average(source.thickness);
-  const width = average(source.width);
-  const span = average(source.span);
-  if (!(thickness > 0)) return { error: '厚度 a 至少要填一个正数（mm）' };
-  if (!(width > 0)) return { error: '宽度 b 至少要填一个正数（mm）' };
-  if (!(span > 0)) return { error: '刀口间距 d 至少要填一个正数（cm）' };
+  const thickness = positiveAverage(source.thickness, '厚度 a', 'mm');
+  if (thickness.error) return { error: thickness.error };
+  const width = positiveAverage(source.width, '宽度 b', 'mm');
+  if (width.error) return { error: width.error };
+  const span = positiveAverage(source.span, '刀口间距 d', 'cm');
+  if (span.error) return { error: span.error };
+
 
   const massG = toNumber(source.massG);
   if (!(massG > 0)) return { error: '负荷 M 必须是正数（单位 g）' };
 
-  // 挠度：填了 ΔZ 就直接用，否则用 ΔU / K 换算
+  // 挠度：填了 ΔZ 就以 ΔZ 为准（并校验），只有 ΔZ 留空时才用 ΔU / K
   const rows = source.deflection || [];
   const details = [];
   for (let i = 0; i < rows.length; i += 1) {
-    const dz = toNumber(rows[i].dz);
-    const du = toNumber(rows[i].du);
+    const dzText = rows[i].dz === null || rows[i].dz === undefined ? '' : String(rows[i].dz).trim();
+    const duText = rows[i].du === null || rows[i].du === undefined ? '' : String(rows[i].du).trim();
     let deltaZ = NaN;
     let from = '';
-    if (Number.isFinite(dz)) {
+    let deltaUText = '';
+    if (dzText) {
+      const dz = toNumber(dzText);
+      if (!Number.isFinite(dz)) return { error: `挠度第 ${i + 1} 组的 ΔZ 要填数字（mm）` };
+      if (!(dz > 0)) return { error: `挠度第 ${i + 1} 组的 ΔZ 必须大于 0（mm）` };
       deltaZ = dz;
       from = 'ΔZ 直测';
-    } else if (Number.isFinite(du)) {
+    } else if (duText) {
+      const du = toNumber(duText);
+      if (!Number.isFinite(du)) return { error: `挠度第 ${i + 1} 组的 ΔU 要填数字（mV）` };
+      if (!(du > 0)) return { error: `挠度第 ${i + 1} 组的 ΔU 必须大于 0（mV）` };
       deltaZ = du / k;
       from = 'ΔU/K';
+      deltaUText = trim(du, 6);
+    } else {
+      return { error: `挠度第 ${i + 1} 组要填 ΔZ 或 ΔU` };
     }
-    if (!Number.isFinite(deltaZ)) return { error: `挠度第 ${i + 1} 组要填 ΔZ 或 ΔU` };
-    if (!(deltaZ > 0)) return { error: `挠度第 ${i + 1} 组换算后必须大于 0` };
     details.push({
       index: i + 1,
       from,
       deltaZ,
       deltaZText: trim(deltaZ, 6),
-      deltaUText: Number.isFinite(du) ? trim(du, 6) : '',
+      deltaUText,
     });
   }
+
   if (!details.length) return { error: '至少需要 1 组挠度数据' };
 
   const deltaZAvg = details.reduce((sum, item) => sum + item.deltaZ, 0) / details.length;
 
   const y = youngsModulus({
-    thicknessMm: thickness,
-    widthMm: width,
-    spanCm: span,
+    thicknessMm: thickness.value,
+    widthMm: width.value,
+    spanCm: span.value,
     massG,
     deflectionMm: deltaZAvg,
   });
   if (!Number.isFinite(y) || !(y > 0)) return { error: '杨氏模量计算失败，请检查挠度是否过小' };
 
-  const reference = toNumber(source.referenceY);
-  const hasReference = Number.isFinite(reference) && reference > 0;
+  const referenceRaw = source.referenceY === null || source.referenceY === undefined
+    ? ''
+    : String(source.referenceY).trim();
+  let reference = NaN;
+  let hasReference = false;
+  if (referenceRaw) {
+    reference = toNumber(referenceRaw);
+    if (!Number.isFinite(reference)) return { error: '公认值 Y 要填数字（Pa），不填请留空' };
+    if (!(reference > 0)) return { error: '公认值 Y 必须大于 0（Pa），不填请留空' };
+    hasReference = true;
+  }
   const signedError = hasReference ? ((y - reference) / reference) * 100 : null;
 
   return {
@@ -134,14 +175,17 @@ function compute(input) {
       material: String(source.material || '').trim() || '未命名材料',
       k,
       kText: trim(k, 6),
-      r2Text: trim(fit.r2, 4),
+      r2Text: Number.isFinite(fit.r2) ? fit.r2.toFixed(4) : '—',
       pointCount: points.length,
-      thickness,
-      width,
-      span,
-      thicknessText: trim(thickness, 6),
-      widthText: trim(width, 6),
-      spanText: trim(span, 6),
+      thickness: thickness.value,
+      width: width.value,
+      span: span.value,
+      thicknessCount: thickness.count,
+      widthCount: width.count,
+      spanCount: span.count,
+      thicknessText: trim(thickness.value, 6),
+      widthText: trim(width.value, 6),
+      spanText: trim(span.value, 6),
       massText: trim(massG, 6),
       deltaZAvg,
       deltaZAvgText: trim(deltaZAvg, 6),

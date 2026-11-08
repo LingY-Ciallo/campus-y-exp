@@ -147,8 +147,14 @@ Page({
       result: null,
       error: '',
     });
-    const dirty = this.data.thickness.some((value) => String(value).trim())
-      || this.data.calibration.some((row) => String(row.z).trim() || String(row.u).trim());
+    const filled = (value) => String(value === null || value === undefined ? '' : value).trim();
+    const dirty = [this.data.material, this.data.referenceY].some(filled)
+      || filled(this.data.massG) !== '60'
+      || this.data.thickness.some(filled)
+      || this.data.width.some(filled)
+      || this.data.span.some(filled)
+      || this.data.calibration.some((row) => filled(row.z) || filled(row.u))
+      || this.data.deflection.some((row) => filled(row.dz) || filled(row.du));
     if (dirty) {
       wx.showModal({
         title: '载入示例数据',
@@ -204,20 +210,33 @@ Page({
   copyResult() {
     const result = this.data.result;
     if (!result) return;
+    const readings = (list) => list
+      .map((value) => String(value === null || value === undefined ? '' : value).trim())
+      .filter((value) => value);
     const lines = [
       '弯曲法测量杨氏模量（霍尔位置传感器）',
       `材料：${result.material}`,
-      `灵敏度 K：${result.kText} V/m（R² = ${result.r2Text}，${result.pointCount} 个定标点）`,
-      `厚度 a：${result.thicknessText} mm　宽度 b：${result.widthText} mm　刀口间距 d：${result.spanText} cm`,
+      `厚度 a：${readings(this.data.thickness).join(' / ')} mm（均值 ${result.thicknessText}，${result.thicknessCount} 次）`,
+      `宽度 b：${readings(this.data.width).join(' / ')} mm（均值 ${result.widthText}，${result.widthCount} 次）`,
+      `刀口间距 d：${readings(this.data.span).join(' / ')} cm（均值 ${result.spanText}，${result.spanCount} 次）`,
       `负荷 M：${result.massText} g`,
+      '',
+      '定标数据（Z 对 U）：',
+      ...this.data.calibration
+        .filter((row) => String(row.z || '').trim() || String(row.u || '').trim())
+        .map((row) => `Z = ${String(row.z || '').trim()} mm，U = ${String(row.u || '').trim()} mV`),
+      `灵敏度 K：${result.kText} V/m（R² = ${result.r2Text}，${result.pointCount} 个定标点）`,
+      '',
+      '挠度明细：',
+      ...result.details.map((item) => (item.deltaUText
+        ? `${item.index}. ${item.deltaZText} mm（ΔU = ${item.deltaUText} mV）`
+        : `${item.index}. ${item.deltaZText} mm（ΔZ 直测）`)),
       `平均挠度 ΔZ：${result.deltaZAvgText} mm`,
       `杨氏模量 Y：${result.yGpaText} GPa（${result.yExponential} Pa）`,
     ];
     if (result.hasReference) {
       lines.push(`与公认值 ${result.referenceText} Pa 相比：${result.errorText}%`);
     }
-    lines.push('挠度明细：');
-    result.details.forEach((item) => lines.push(`${item.index}. ${item.deltaZText} mm（${item.from}）`));
     wx.setClipboardData({
       data: lines.join('\n'),
       fail: () => wx.showToast({ title: '复制失败，请重试', icon: 'none' }),
