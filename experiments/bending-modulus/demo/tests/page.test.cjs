@@ -23,8 +23,9 @@ function createPage(demoMode = false) {
   let options;
   let clipboard;
   let applyCount = 0;
+  let modalCount = 0;
   const wx = {
-    showModal: (config) => config.success({ confirm: true }),
+    showModal: (config) => { modalCount += 1; config.success({ confirm: true }); },
     showToast() {},
     setClipboardData: (config) => { clipboard = config.data; },
     onThemeChange(listener) { this.listener = listener; },
@@ -46,7 +47,7 @@ function createPage(demoMode = false) {
   });
   page.onLoad();
   page.onShow();
-  return { page, wx, clipboard: () => clipboard, applyCount: () => applyCount };
+  return { page, wx, clipboard: () => clipboard, applyCount: () => applyCount, modalCount: () => modalCount };
 }
 
 test('载入示例后计算得到 193.22 GPa 与 6.46%', () => {
@@ -71,7 +72,9 @@ test('复制文案包含材料、灵敏度、挠度明细', () => {
   assert.match(text, /材料：铸铁/);
   assert.match(text, /灵敏度 K：299.16 V\/m/);
   assert.match(text, /杨氏模量 Y：193.22 GPa/);
-  assert.match(text, /0\.66854 mm（ΔU\/K）/);
+  assert.match(text, /0\.66854 mm（ΔU = 200 mV）/);
+  assert.match(text, /0\.671882 mm（ΔU = 201 mV）/);
+  assert.match(text, /Z = 3\.245 mm，U = 13 mV/);
   assert.match(text, /与公认值 1\.8150e\+11 Pa 相比：6\.46%/);
 });
 
@@ -173,4 +176,24 @@ test('注册路径、页面文件、事件绑定与样式依赖完整', () => {
   }
   checkStyle(path.join(root, 'app.wxss'));
   checkStyle(path.join(folder, 'bending-modulus.wxss'));
+});
+test('载入示例前检查所有已填字段', () => {
+  const clean = createPage();
+  clean.page.loadExample();
+  assert.equal(clean.modalCount(), 0, '空表单载入示例不应弹窗');
+
+  const massChanged = createPage();
+  massChanged.page.onInput({ currentTarget: { dataset: { field: 'massG' } }, detail: { value: '80' } });
+  massChanged.page.loadExample();
+  assert.equal(massChanged.modalCount(), 1, '只改了负荷也要弹窗');
+
+  const oneThickness = createPage();
+  oneThickness.page.onInput({ currentTarget: { dataset: { list: 'thickness', index: '0' } }, detail: { value: '0.9' } });
+  oneThickness.page.loadExample();
+  assert.equal(oneThickness.modalCount(), 1, '只填一次厚度也要弹窗');
+
+  const oneCalibration = createPage();
+  oneCalibration.page.onInput({ currentTarget: { dataset: { list: 'calibration', index: '1', key: 'u' } }, detail: { value: '5' } });
+  oneCalibration.page.loadExample();
+  assert.equal(oneCalibration.modalCount(), 1, '只填一个定标值也要弹窗');
 });

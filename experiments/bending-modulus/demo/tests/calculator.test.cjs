@@ -48,7 +48,7 @@ test('铸铁例题：灵敏度、平均挠度与杨氏模量', () => {
   const { result } = outcome;
   relative(result.k, 299.159);
   assert.equal(result.kText, '299.16');
-  assert.equal(result.r2Text, '1');
+  assert.equal(result.r2Text, '1.0000');
   assert.equal(result.pointCount, 6);
   relative(result.deltaZAvg, 0.672997);
   assert.equal(result.deltaZAvgText, '0.672997');
@@ -129,4 +129,35 @@ test('杨氏模量随厚度三次方变化，零挠度返回 NaN', () => {
   const two = youngsModulus(Object.assign({}, base, { thicknessMm: 2 }));
   relative(one / two, 8);
   assert.ok(Number.isNaN(youngsModulus(Object.assign({}, base, { deflectionMm: 0 }))));
+});
+test('梁尺寸逐项校验：填了 0 或非数字要报错，空白才忽略', () => {
+  assert.match(compute(ironInput({ thickness: ['0.875', '0', '0.867'] })).error, /厚度 a 第 2 次测量必须大于 0（mm）/);
+  assert.match(compute(ironInput({ thickness: ['0.875', 'abc', '0.867'] })).error, /厚度 a 第 2 次测量要填数字（mm）/);
+  assert.match(compute(ironInput({ width: ['20.8', '-1', '20.96'] })).error, /宽度 b 第 2 次测量必须大于 0（mm）/);
+  assert.match(compute(ironInput({ span: ['23.2', 'x', '23'] })).error, /刀口间距 d 第 2 次测量要填数字（cm）/);
+  const { result } = compute(ironInput({ thickness: ['0.875', '', '0.867'], width: ['20.8', '   ', '20.96'] }));
+  assert.equal(result.thicknessCount, 2);
+  assert.equal(result.widthCount, 2);
+  assert.equal(result.spanCount, 3);
+});
+
+test('填了非法的 ΔZ 不会被 ΔU 悄悄顶替', () => {
+  assert.match(compute(ironInput({ deflection: [{ dz: 'bad', du: '200' }] })).error, /挠度第 1 组的 ΔZ 要填数字/);
+  assert.match(compute(ironInput({ deflection: [{ dz: '0', du: '200' }] })).error, /挠度第 1 组的 ΔZ 必须大于 0/);
+  const { result } = compute(ironInput({ deflection: [{ dz: '', du: '200' }, { dz: '0.7' }] }));
+  assert.equal(result.details[0].from, 'ΔU/K');
+  assert.equal(result.details[1].from, 'ΔZ 直测');
+});
+
+test('公认值填了就必须是正数，留空才跳过', () => {
+  assert.match(compute(ironInput({ referenceY: 'abc' })).error, /公认值 Y 要填数字/);
+  assert.match(compute(ironInput({ referenceY: '-1' })).error, /公认值 Y 必须大于 0/);
+  assert.equal(compute(ironInput({ referenceY: '  ' })).result.hasReference, false);
+  assert.equal(compute(ironInput({ referenceY: '' })).result.errorText, '');
+});
+
+test('R² 固定输出四位小数', () => {
+  assert.equal(compute(ironInput()).result.r2Text, '1.0000');
+  const noisy = ironInput({ calibration: [{ z: '1', u: '10' }, { z: '2', u: '21' }, { z: '3', u: '29' }] });
+  assert.match(compute(noisy).result.r2Text, /^0\.\d{4}$/);
 });
