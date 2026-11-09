@@ -2,7 +2,7 @@
   "description": "扭摆法测量转动惯量独立示例",
   "miniprogramRoot": "./",
   "compileType": "miniprogram",
-  "appid": "wx8d7b7f4558355457",
+  "appid": "touristappid",
   "projectname": "campus-y-exp-torsion-inertia",
   "setting": {
     "es6": true,
