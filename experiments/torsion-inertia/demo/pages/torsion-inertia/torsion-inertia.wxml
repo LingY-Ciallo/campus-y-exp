@@ -1,0 +1,150 @@
+<view class="app-theme theme-{{appearanceTheme}} accent-{{appearanceAccent}}">
+  <view class="container ui-page experiment-page">
+    <view class="ui-page-heading">
+      <text class="ui-page-kicker">实验工具 · 大学物理实验</text>
+      <text class="ui-page-title">扭摆法测量转动惯量</text>
+      <text class="ui-page-description">用已知圆柱体标定扭转常量，再由周期求圆筒与细杆的转动惯量。</text>
+    </view>
+
+    <view class="section preview-section" wx:if="{{demoMode}}">
+      <view class="section-heading"><text class="section-title">外观预览</text><text class="status-tag">仅开发示例</text></view>
+      <view class="preview-grid">
+        <picker mode="selector" range="{{themeNames}}" value="{{themeIndex}}" bindchange="onThemeChange" aria-label="选择预览主题">
+          <view class="picker-control"><text>主题</text><text class="picker-value">{{themeNames[themeIndex]}} ›</text></view>
+        </picker>
+        <picker mode="selector" range="{{accentNames}}" value="{{accentIndex}}" bindchange="onAccentChange" aria-label="选择强调色">
+          <view class="picker-control"><text>强调色</text><text class="picker-value">{{accentNames[accentIndex]}} ›</text></view>
+        </picker>
+      </view>
+      <text class="helper-text">莫奈、小音使用各自配色；浅色、深色支持切换强调色。</text>
+    </view>
+
+    <view class="section">
+      <view class="section-heading"><text class="section-title">标定体：圆柱体</text><text class="step-label">01</text></view>
+      <text class="helper-text record-help">圆柱体几何规则、理论转动惯量可直接算出，用它作标定体反推扭转常量 K。质量测一次，直径测三次。</text>
+      <view class="field-item">
+        <text class="field-label">质量 m1（g）</text>
+        <input class="input" type="text" maxlength="16" value="{{cylinderMass[0]}}" data-list="cylinderMass" data-index="0" bindinput="onInput" placeholder="723" placeholder-class="input-placeholder" aria-label="圆柱体质量" />
+      </view>
+      <view class="record-row">
+        <text class="record-index">D1</text>
+        <input class="input record-input" type="text" maxlength="16" value="{{cylinderDiameter[0]}}" data-list="cylinderDiameter" data-index="0" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" aria-label="圆柱体直径第 1 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{cylinderDiameter[1]}}" data-list="cylinderDiameter" data-index="1" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" aria-label="圆柱体直径第 2 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{cylinderDiameter[2]}}" data-list="cylinderDiameter" data-index="2" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" aria-label="圆柱体直径第 3 次" />
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-heading"><text class="section-title">待测物几何尺寸</text><text class="step-label">02</text></view>
+      <text class="helper-text record-help">每个尺寸测三次，留空的格子自动忽略。</text>
+      <view class="field-item">
+        <text class="field-label">圆筒质量 m2（g）</text>
+        <input class="input" type="text" maxlength="16" value="{{tubeMass[0]}}" data-list="tubeMass" data-index="0" bindinput="onInput" placeholder="715" placeholder-class="input-placeholder" aria-label="圆筒质量" />
+      </view>
+      <view class="record-row">
+        <text class="record-index">D外</text>
+        <input class="input record-input" type="text" maxlength="16" value="{{tubeOuter[0]}}" data-list="tubeOuter" data-index="0" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" aria-label="圆筒外径第 1 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{tubeOuter[1]}}" data-list="tubeOuter" data-index="1" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" aria-label="圆筒外径第 2 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{tubeOuter[2]}}" data-list="tubeOuter" data-index="2" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" aria-label="圆筒外径第 3 次" />
+      </view>
+      <view class="record-row">
+        <text class="record-index">D内</text>
+        <input class="input record-input" type="text" maxlength="16" value="{{tubeInner[0]}}" data-list="tubeInner" data-index="0" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" aria-label="圆筒内径第 1 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{tubeInner[1]}}" data-list="tubeInner" data-index="1" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" aria-label="圆筒内径第 2 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{tubeInner[2]}}" data-list="tubeInner" data-index="2" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" aria-label="圆筒内径第 3 次" />
+      </view>
+      <view class="field-item">
+        <text class="field-label">细杆质量 m3（g）</text>
+        <input class="input" type="text" maxlength="16" value="{{rodMass[0]}}" data-list="rodMass" data-index="0" bindinput="onInput" placeholder="134.6" placeholder-class="input-placeholder" aria-label="细杆质量" />
+      </view>
+      <view class="record-row">
+        <text class="record-index">L</text>
+        <input class="input record-input" type="text" maxlength="16" value="{{rodLength[0]}}" data-list="rodLength" data-index="0" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" aria-label="细杆长度第 1 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{rodLength[1]}}" data-list="rodLength" data-index="1" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" aria-label="细杆长度第 2 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{rodLength[2]}}" data-list="rodLength" data-index="2" bindinput="onInput" placeholder="mm" placeholder-class="input-placeholder" aria-label="细杆长度第 3 次" />
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-heading"><text class="section-title">周期测量</text><text class="step-label">03</text></view>
+      <text class="helper-text record-help">每种状态测三次取平均，单位 s。T0 空盘、T1 放圆柱体、T2 放圆筒、T3 放细杆。</text>
+      <view class="record-row">
+        <text class="record-index">T0</text>
+        <input class="input record-input" type="text" maxlength="16" value="{{periodEmpty[0]}}" data-list="periodEmpty" data-index="0" bindinput="onInput" placeholder="空盘" placeholder-class="input-placeholder" aria-label="空载物盘周期第 1 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{periodEmpty[1]}}" data-list="periodEmpty" data-index="1" bindinput="onInput" placeholder="空盘" placeholder-class="input-placeholder" aria-label="空载物盘周期第 2 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{periodEmpty[2]}}" data-list="periodEmpty" data-index="2" bindinput="onInput" placeholder="空盘" placeholder-class="input-placeholder" aria-label="空载物盘周期第 3 次" />
+      </view>
+      <view class="record-row">
+        <text class="record-index">T1</text>
+        <input class="input record-input" type="text" maxlength="16" value="{{periodCylinder[0]}}" data-list="periodCylinder" data-index="0" bindinput="onInput" placeholder="圆柱" placeholder-class="input-placeholder" aria-label="放圆柱体周期第 1 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{periodCylinder[1]}}" data-list="periodCylinder" data-index="1" bindinput="onInput" placeholder="圆柱" placeholder-class="input-placeholder" aria-label="放圆柱体周期第 2 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{periodCylinder[2]}}" data-list="periodCylinder" data-index="2" bindinput="onInput" placeholder="圆柱" placeholder-class="input-placeholder" aria-label="放圆柱体周期第 3 次" />
+      </view>
+      <view class="record-row">
+        <text class="record-index">T2</text>
+        <input class="input record-input" type="text" maxlength="16" value="{{periodTube[0]}}" data-list="periodTube" data-index="0" bindinput="onInput" placeholder="圆筒" placeholder-class="input-placeholder" aria-label="放圆筒周期第 1 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{periodTube[1]}}" data-list="periodTube" data-index="1" bindinput="onInput" placeholder="圆筒" placeholder-class="input-placeholder" aria-label="放圆筒周期第 2 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{periodTube[2]}}" data-list="periodTube" data-index="2" bindinput="onInput" placeholder="圆筒" placeholder-class="input-placeholder" aria-label="放圆筒周期第 3 次" />
+      </view>
+      <view class="record-row">
+        <text class="record-index">T3</text>
+        <input class="input record-input" type="text" maxlength="16" value="{{periodRod[0]}}" data-list="periodRod" data-index="0" bindinput="onInput" placeholder="细杆" placeholder-class="input-placeholder" aria-label="放细杆周期第 1 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{periodRod[1]}}" data-list="periodRod" data-index="1" bindinput="onInput" placeholder="细杆" placeholder-class="input-placeholder" aria-label="放细杆周期第 2 次" />
+        <input class="input record-input" type="text" maxlength="16" value="{{periodRod[2]}}" data-list="periodRod" data-index="2" bindinput="onInput" placeholder="细杆" placeholder-class="input-placeholder" aria-label="放细杆周期第 3 次" />
+      </view>
+      <view class="record-actions">
+        <button class="secondary-button" bindtap="loadExample">载入示例</button>
+      </view>
+    </view>
+
+    <view class="action-section">
+      <view class="error-message" wx:if="{{error}}" role="alert">{{error}}</view>
+      <button class="calculate-btn" bindtap="calculate">计算转动惯量</button>
+      <button class="reset-button" bindtap="resetForm">清空本次数据</button>
+    </view>
+
+    <view class="section result-section" wx:if="{{result}}">
+      <view class="section-heading"><text class="section-title">实验结果</text><text class="status-tag">可核对</text></view>
+      <view class="result-summary">
+        <text class="result-caption">扭转常量 K</text>
+        <view class="result-main"><text class="result-number">{{result.kText}}</text><text class="result-unit">N·m</text></view>
+      </view>
+      <view class="result-row"><text class="result-label">K / 4π²</text><text class="value">{{result.kOverFourPi2Text}} kg·m²/s²</text></view>
+      <view class="result-row"><text class="result-label">空载物盘 J0</text><text class="value">{{result.j0Text}} kg·m²</text></view>
+      <view class="result-row"><text class="result-label">平均周期</text><text class="value">T0 {{result.t0Text}} / T1 {{result.t1Text}} / T2 {{result.t2Text}} / T3 {{result.t3Text}} s</text></view>
+      <text class="helper-text">K = 4π²·J1理 / (T1² − T0²)，J0 = (K/4π²)·T0²，J实 = (K/4π²)·T² − J0。</text>
+    </view>
+
+    <view class="section" wx:if="{{result}}">
+      <view class="section-heading"><text class="section-title">转动惯量对比</text><text class="step-label">J理 / J实</text></view>
+      <scroll-view class="experiment-table-scroll" scroll-x="{{true}}">
+        <view class="detail-table">
+          <view class="detail-row table-heading">
+            <text class="detail-cell index-cell">物体</text>
+            <text class="detail-cell">J理</text>
+            <text class="detail-cell">J实</text>
+            <text class="detail-cell">E/%</text>
+          </view>
+          <view class="detail-row" wx:for="{{result.items}}" wx:key="key">
+            <text class="detail-cell index-cell">{{item.name}}</text>
+            <text class="detail-cell">{{item.theoryText}}</text>
+            <text class="detail-cell">{{item.measuredText}}</text>
+            <text class="detail-cell">{{item.errorText}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <text class="helper-text record-help">单位 kg·m²。圆柱体是标定体，J实 必然等于 J理，误差恒为 0，不能当作准确度指标；真正检验准确度的是圆筒与细杆。</text>
+      <button class="secondary-button copy-button" bindtap="copyResult">复制结果与原始数据</button>
+    </view>
+
+    <view class="formula-note">
+      <text class="note-title">本页使用的公式</text>
+      <text>圆柱体 J理 = m·D² / 8</text>
+      <text>圆筒 J理 = m·(D外² + D内²) / 8</text>
+      <text>细杆 J理 = m·L² / 12</text>
+      <text>K = 4π²·J1理 / (T1² − T0²)</text>
+      <text>J实 = (K/4π²)·T² − J0</text>
+      <text class="helper-text">质量按 g、尺寸按 mm、周期按 s 输入，内部统一换算为国际单位；数据不联网、不自动保存。</text>
+    </view>
+  </view>
+</view>

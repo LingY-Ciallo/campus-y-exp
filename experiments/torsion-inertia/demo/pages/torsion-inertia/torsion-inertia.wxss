@@ -1,0 +1,56 @@
+@import "./page-foundation.wxss";
+/* 对齐校园小音 styles/experiment-pages.wxss 的基础尺寸；不依赖跨包图片或模块。 */
+.section { min-width:0; padding:17px; border:1px solid var(--theme-border, #e8edf4); border-radius:20px; background:var(--theme-surface, #ffffff); box-sizing:border-box; }
+.section-heading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px 12px; margin-bottom:14px; }
+.section-title { font-size:16px; font-weight:600; line-height:1.6; color:var(--theme-text, #20334c); }
+.step-label,.status-tag { font-size:12px; line-height:1.7; color:var(--theme-text-secondary, #667991); }
+.status-tag { padding:3px 9px; border-radius:8px; background:var(--accent-soft, #eaf6ff); }
+.preview-grid,.field-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.preview-grid picker,.field-item { min-width:0; }
+.picker-control { min-height:44px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:4px 10px; padding:10px 12px; border:1px solid var(--theme-border, #e8edf4); border-radius:10px; box-sizing:border-box; background:var(--theme-input, #f6f8fc); color:var(--theme-text-secondary, #667991); font-size:13px; line-height:1.7; }
+.picker-value { color:var(--theme-text, #20334c); overflow-wrap:anywhere; }
+.field-label { display:block; margin-bottom:8px; font-size:14px; line-height:1.7; color:var(--theme-text-secondary, #667991); }
+.input { width:100%; min-width:0; height:44px; padding:10px 12px; border:1px solid var(--theme-border, #e8edf4); border-radius:10px; background:var(--theme-input, #f6f8fc); color:var(--theme-text, #20334c); font-size:15px; line-height:1.6; box-sizing:border-box; }
+.input-placeholder { color:var(--theme-text-muted, #697a90); }
+.helper-text { display:block; margin-top:12px; font-size:12px; line-height:1.8; color:var(--theme-text-secondary, #667991); overflow-wrap:anywhere; }
+.record-help { margin:0 0 14px; }
+.record-row { display:flex; align-items:center; gap:8px; min-width:0; margin-bottom:10px; }
+.record-index { flex:0 0 30px; text-align:center; font-size:13px; white-space:nowrap; color:var(--theme-text-muted, #697a90); }
+.record-input { flex:1; width:0; }
+.unit-label { flex:0 0 38px; font-size:12px; line-height:1.5; overflow-wrap:anywhere; color:var(--theme-text-secondary, #667991); }
+.remove-button { flex:0 0 44px; min-height:44px; margin:0; padding:10px 0; border:0; border-radius:10px; font-size:12px; line-height:24px; background:var(--theme-surface-muted, #f6f8fc); color:var(--theme-text-secondary, #667991); }
+.record-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
+.record-actions .secondary-button { flex:1 1 0; min-width:0; }
+.secondary-button { width:100%; min-height:44px; padding:10px 12px; margin:0; border:0; border-radius:12px; box-sizing:border-box; font-size:14px; line-height:24px; background:var(--accent-soft, #eaf6ff); color:var(--theme-text, #20334c); }
+.calculate-btn { width:100%; min-height:48px; margin:0; padding:12px; border:0; border-radius:12px; box-sizing:border-box; font-size:16px; font-weight:600; line-height:24px; background:var(--accent, #48abef); color:var(--accent-contrast, #102f46); }
+.reset-button { width:100%; min-height:44px; margin:6px 0 0; padding:10px; border:0; font-size:13px; line-height:24px; color:var(--theme-text-secondary, #667991); background:transparent; }
+button::after { border:0; }
+button[disabled] { opacity:.55; color:var(--theme-text-muted, #697a90); background:var(--theme-surface-muted, #f6f8fc); }
+.error-message { margin-bottom:12px; padding:12px; border:1px solid var(--theme-border, #e8edf4); border-left:3px solid var(--accent, #48abef); border-radius:10px; background:var(--accent-soft, #eaf6ff); color:var(--theme-text, #20334c); font-size:14px; line-height:1.7; overflow-wrap:anywhere; }
+.result-summary { padding:16px; margin-bottom:12px; border-radius:12px; background:var(--accent-soft, #eaf6ff); }
+.result-caption { display:block; color:var(--theme-text-secondary, #667991); font-size:13px; line-height:1.7; }
+.result-main { display:flex; flex-wrap:wrap; align-items:baseline; gap:8px; margin-top:6px; color:var(--theme-text, #20334c); }
+.result-number { font-size:30px; line-height:1.5; font-weight:600; overflow-wrap:anywhere; min-width:0; max-width:100%; }
+.result-unit { font-size:14px; overflow-wrap:anywhere; }
+.result-row { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px 12px; padding:12px 0; border-bottom:1px solid var(--theme-border, #e8edf4); }
+.result-label { font-size:13px; line-height:1.8; color:var(--theme-text-secondary, #667991); }
+.value { font-size:14px; line-height:1.8; color:var(--theme-text, #20334c); overflow-wrap:anywhere; max-width:100%; }
+.copy-button { margin-top:16px; }
+.experiment-table-scroll { width:100%; min-width:0; }
+.detail-table { min-width:100%; border:1px solid var(--theme-border, #e8edf4); border-radius:12px; overflow:hidden; }
+.detail-row { display:flex; border-top:1px solid var(--theme-border, #e8edf4); }
+.table-heading { border-top:0; background:var(--theme-surface-muted, #f6f8fc); font-weight:600; }
+.detail-cell { flex:1; min-width:0; padding:12px 8px; font-size:13px; line-height:1.7; text-align:center; overflow-wrap:anywhere; color:var(--theme-text, #20334c); }
+.index-cell { flex:0 0 44px; }
+.formula-note { padding:0 4px; color:var(--theme-text-secondary, #667991); }
+.formula-note > text { display:block; font-size:12px; line-height:2; overflow-wrap:anywhere; }
+.formula-note .note-title { margin-bottom:6px; font-size:13px; font-weight:600; color:var(--theme-text, #20334c); }
+/* 接回主项目时，选择器与现有主题类一致，不覆盖全局色板。 */
+.theme-monet .section { border-radius:26px 42px 25px 28px; }
+.theme-xiaoyin .section { border-radius:5px 24px 24px 24px; }
+@media (max-width:480px) { .preview-grid { grid-template-columns:1fr; } }
+@media (max-width:360px) { .field-grid { grid-template-columns:1fr; } .record-row { gap:6px; } .unit-label { flex-basis:28px; } .input { padding-left:8px; padding-right:8px; } }
+/* 转动惯量对比表首列是物体名称（最长 4 字），比序号列宽一些 */
+.detail-table .index-cell { flex:0 0 66px; }
+/* 质量这类单值输入单独成行，与紧随其后的多格测量行之间留出间距 */
+.field-item { margin-bottom:10px; }
