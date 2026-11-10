@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/torsion-inertia/torsion-inertia"
+  ],
+  "window": {
+    "navigationBarTitleText": "实验数据处理",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f8f9fa"
+  },
+  "style": "v2",
+  "darkmode": true,
+  "sitemapLocation": "sitemap.json"
+}
