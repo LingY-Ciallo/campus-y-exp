@@ -8,6 +8,8 @@
 - 全文件 CODEOWNERS 为 LingY-Ciallo 和 LaZYKING233；其中任意一位的有效批准可满足审核要求。保留 Code Owner 强制审核，不仅依靠审批次数限制用户。
 - GitHub 作者不能自批：LingY-Ciallo 发起的 PR 由 LaZYKING233 审，反之亦然；其他贡献者发起的 PR 由两人任选一人审。不自动设置作者豁免。协作者须接受邀请才能有效审批。
 - 新实验放在 experiments/<slug>/，遵循 CONTRIBUTING.md。CI 默认只读、官方 Action 固定 SHA，不使用高权限事件执行外部 PR 代码。
+- 适配任何实验前，必须人工或用 AI 对照本仓库与校园小音主仓库的实验编号、名称、别名和测量方法；跳过重复实验，改进已有实验时针对原页面提交。主仓库导入前再次查重。
+- 默认以 PR 作者 GitHub 用户名作为贡献署名。指定显示名或更改已有署名必须在 PR 说明中给出准确展示文本。
 - 原生 JavaScript / WXML / WXSS，无后端或供应商 Key，不引入 npm 运行依赖。
 - 保留 `appearanceTheme` / `appearanceAccent` 绑定及 `--theme-*` / `--accent*` 变量；适配 light、dark、monet、xiaoyin。
 - 演示 App 和主题色板仅供独立项目；接回主项目时沿用其主题注入与权益系统，不覆盖 App 或全局主题。
