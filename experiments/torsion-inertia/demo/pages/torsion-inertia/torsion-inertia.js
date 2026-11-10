@@ -150,21 +150,31 @@ Page({
   copyResult() {
     const result = this.data.result;
     if (!result) return;
-    const readings = (list) => list
+    const readings = (list) => (list || [])
       .map((value) => String(value === null || value === undefined ? '' : value).trim())
       .filter((value) => value)
       .join(' / ');
+    // 与周期同一写法：逐次读数 + 单位（均值，次数）。填了几次就列几次，不合并、不省略
+    const measure = (label, list, unit, meanText, count) =>
+      `${label}：${readings(list)} ${unit}（均值 ${meanText}，${count} 次）`;
     const lines = [
       '扭摆法测量转动惯量',
       '',
       '原始数据：',
-      `圆柱体：质量 m1 = ${result.cylinderMassText} g，直径 D1 = ${result.cylinderDiameterText} mm`,
-      `金属圆筒：质量 m2 = ${result.tubeMassText} g，外径 ${result.tubeOuterText} mm，内径 ${result.tubeInnerText} mm`,
-      `细金属杆：质量 m3 = ${result.rodMassText} g，长度 L = ${result.rodLengthText} mm`,
-      `周期 T0（空载物盘）：${readings(this.data.periodEmpty)} s（均值 ${result.t0Text}，${result.t0Count} 次）`,
-      `周期 T1（放圆柱体）：${readings(this.data.periodCylinder)} s（均值 ${result.t1Text}，${result.t1Count} 次）`,
-      `周期 T2（放圆筒）：${readings(this.data.periodTube)} s（均值 ${result.t2Text}，${result.t2Count} 次）`,
-      `周期 T3（放细杆）：${readings(this.data.periodRod)} s（均值 ${result.t3Text}，${result.t3Count} 次）`,
+      '几何尺寸与质量：',
+      measure('圆柱体质量 m1', this.data.cylinderMass, 'g', result.cylinderMassText, result.cylinderMassCount),
+      measure('圆柱体直径 D1', this.data.cylinderDiameter, 'mm', result.cylinderDiameterText, result.cylinderDiameterCount),
+      measure('圆筒质量 m2', this.data.tubeMass, 'g', result.tubeMassText, result.tubeMassCount),
+      measure('圆筒外径 D外', this.data.tubeOuter, 'mm', result.tubeOuterText, result.tubeOuterCount),
+      measure('圆筒内径 D内', this.data.tubeInner, 'mm', result.tubeInnerText, result.tubeInnerCount),
+      measure('细杆质量 m3', this.data.rodMass, 'g', result.rodMassText, result.rodMassCount),
+      measure('细杆长度 L', this.data.rodLength, 'mm', result.rodLengthText, result.rodLengthCount),
+      '',
+      '周期：',
+      measure('周期 T0（空载物盘）', this.data.periodEmpty, 's', result.t0Text, result.t0Count),
+      measure('周期 T1（放圆柱体）', this.data.periodCylinder, 's', result.t1Text, result.t1Count),
+      measure('周期 T2（放圆筒）', this.data.periodTube, 's', result.t2Text, result.t2Count),
+      measure('周期 T3（放细杆）', this.data.periodRod, 's', result.t3Text, result.t3Count),
       '',
       `扭转常量 K：${result.kText} N·m`,
       `K/(4π²)：${result.kOverFourPi2Text} kg·m²/s²`,
@@ -172,6 +182,8 @@ Page({
       '',
       '转动惯量结果（J理 / J实 / 相对误差）：',
       ...result.items.map((item) => `${item.name}：${item.theoryText} / ${item.measuredText} kg·m²，E = ${item.errorText}%`),
+      '',
+      '注：圆柱体是标定体，J实 恒等于 J理，E = 0 由方法本身决定，不作为准确度指标。',
     ];
     wx.setClipboardData({
       data: lines.join('\n'),

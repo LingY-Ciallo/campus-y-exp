@@ -41,6 +41,14 @@ test('例题：K、J0 与三项转动惯量复现实验记录', () => {
   assert.equal(result.t1Text, '1.14101');
   assert.equal(result.t2Text, '1.4024');
   assert.equal(result.t3Text, '1.99476');
+  assert.equal(result.cylinderMassCount, 3);
+  assert.equal(result.cylinderDiameterCount, 3);
+  assert.equal(result.tubeMassCount, 3);
+  assert.equal(result.tubeOuterCount, 3);
+  assert.equal(result.tubeInnerCount, 3);
+  assert.equal(result.rodMassCount, 1);
+  assert.equal(result.rodLengthCount, 1);
+  assert.equal(result.t0Count, 3);
 
   const [cylinder, tube, rod] = result.items;
   assert.equal(cylinder.theoryText, '9.0375e-4');

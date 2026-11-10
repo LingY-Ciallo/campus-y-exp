@@ -112,6 +112,7 @@
       <view class="result-row"><text class="result-label">K / 4π²</text><text class="value">{{result.kOverFourPi2Text}} kg·m²/s²</text></view>
       <view class="result-row"><text class="result-label">空载物盘 J0</text><text class="value">{{result.j0Text}} kg·m²</text></view>
       <view class="result-row"><text class="result-label">平均周期</text><text class="value">T0 {{result.t0Text}} / T1 {{result.t1Text}} / T2 {{result.t2Text}} / T3 {{result.t3Text}} s</text></view>
+      <view class="result-row"><text class="result-label">测量次数</text><text class="value">T0 {{result.t0Count}} / T1 {{result.t1Count}} / T2 {{result.t2Count}} / T3 {{result.t3Count}} 次</text></view>
       <text class="helper-text">K = 4π²·J1理 / (T1² − T0²)，J0 = (K/4π²)·T0²，J实 = (K/4π²)·T² − J0。</text>
     </view>
 
