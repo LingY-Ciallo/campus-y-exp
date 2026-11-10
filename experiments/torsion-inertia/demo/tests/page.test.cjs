@@ -77,12 +77,42 @@ test('复制文案包含原始读数、周期均值与三项结果', () => {
   page.copyResult();
   const text = clipboard();
   assert.match(text, /扭摆法测量转动惯量/);
-  assert.match(text, /圆柱体：质量 m1 = 723 g，直径 D1 = 100 mm/);
-  assert.match(text, /金属圆筒：质量 m2 = 715 g，外径 100\.167 mm，内径 93\.1367 mm/);
+  // 质量与尺寸和周期同一写法：逐次读数 / 单位（均值，次数）
+  assert.match(text, /圆柱体质量 m1：723 g（均值 723，1 次）/);
+  assert.match(text, /圆柱体直径 D1：100 \/ 100 \/ 100 mm（均值 100，3 次）/);
+  assert.match(text, /圆筒质量 m2：715 g（均值 715，1 次）/);
+  assert.match(text, /圆筒外径 D外：100\.1 \/ 100\.2 \/ 100\.2 mm（均值 100\.167，3 次）/);
+  assert.match(text, /圆筒内径 D内：93\.13 \/ 93\.14 \/ 93\.14 mm（均值 93\.1367，3 次）/);
+  assert.match(text, /细杆长度 L：601 mm（均值 601，1 次）/);
   assert.match(text, /周期 T1（放圆柱体）：1\.141298 \/ 1\.140715 \/ 1\.141011 s（均值 1\.14101，3 次）/);
   assert.match(text, /扭转常量 K：0\.0416865 N·m/);
   assert.match(text, /空载物盘转动惯量 J0：4\.7097e-4 kg·m²/);
   assert.match(text, /金属圆筒：1\.6720e-3 \/ 1\.6058e-3 kg·m²，E = -3\.96%/);
+});
+
+test('复制文案的尺寸行不丢任何一次读数', () => {
+  const { page, clipboard } = createPage();
+  page.onInput({ currentTarget: { dataset: { list: 'cylinderMass', index: 0 } }, detail: { value: '723' } });
+  page.onInput({ currentTarget: { dataset: { list: 'cylinderDiameter', index: 0 } }, detail: { value: '100' } });
+  page.onInput({ currentTarget: { dataset: { list: 'tubeMass', index: 0 } }, detail: { value: '715' } });
+  page.onInput({ currentTarget: { dataset: { list: 'tubeOuter', index: 0 } }, detail: { value: '100.1' } });
+  page.onInput({ currentTarget: { dataset: { list: 'tubeOuter', index: 1 } }, detail: { value: '100.2' } });
+  page.onInput({ currentTarget: { dataset: { list: 'tubeOuter', index: 2 } }, detail: { value: '100.3' } });
+  page.onInput({ currentTarget: { dataset: { list: 'tubeInner', index: 0 } }, detail: { value: '93.13' } });
+  page.onInput({ currentTarget: { dataset: { list: 'rodMass', index: 0 } }, detail: { value: '134.6' } });
+  page.onInput({ currentTarget: { dataset: { list: 'rodLength', index: 0 } }, detail: { value: '601' } });
+  page.onInput({ currentTarget: { dataset: { list: 'periodEmpty', index: 0 } }, detail: { value: '0.667534' } });
+  page.onInput({ currentTarget: { dataset: { list: 'periodCylinder', index: 0 } }, detail: { value: '1.141298' } });
+  page.onInput({ currentTarget: { dataset: { list: 'periodTube', index: 0 } }, detail: { value: '1.402563' } });
+  page.onInput({ currentTarget: { dataset: { list: 'periodRod', index: 0 } }, detail: { value: '1.994677' } });
+  page.calculate();
+  page.copyResult();
+  const text = clipboard();
+  // 三次读数按填写顺序全部列出，均值另算
+  assert.match(text, /圆筒外径 D外：100\.1 \/ 100\.2 \/ 100\.3 mm（均值 100\.2，3 次）/);
+  // 只填一次的量只列一次，次数如实写 1
+  assert.match(text, /圆筒内径 D内：93\.13 mm（均值 93\.13，1 次）/);
+  assert.match(text, /细杆质量 m3：134\.6 g（均值 134\.6，1 次）/);
 });
 
 test('修改任一输入后旧结果立即失效', () => {
