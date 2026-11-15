@@ -1,0 +1,43 @@
+/* 从校园小音 v4.3.3 主题中提取的无资产预览色板。仅供独立示例使用。 */
+.app-theme {
+  --accent:#48abef; --accent-soft:#eaf6ff; --accent-contrast:#102f46;
+  --theme-page:#f8f9fa; --theme-surface:#ffffff; --theme-surface-muted:#f6f8fc;
+  --theme-text:#20334c; --theme-text-secondary:#667991; --theme-text-muted:#697a90;
+  --theme-border:#e8edf4; --theme-input:#f6f8fc;
+  min-height:100vh; color:var(--theme-text); background:var(--theme-page);
+}
+.app-theme.accent-blue { --accent:#096dd9; --accent-soft:#eaf3ff; --accent-contrast:#ffffff; }
+.app-theme.accent-gray { --accent:#6b7280; --accent-soft:#f0f1f3; --accent-contrast:#ffffff; }
+.app-theme.accent-teal { --accent:#087f8c; --accent-soft:#e8f6f6; --accent-contrast:#ffffff; }
+.app-theme.accent-orange { --accent:#d46b08; --accent-soft:#fff1e6; --accent-contrast:#ffffff; }
+.app-theme.theme-dark {
+  --theme-page:#17191f; --theme-surface:#23262e; --theme-surface-muted:#2c3038;
+  --theme-text:#f3f5f8; --theme-text-secondary:#c1c6d0; --theme-text-muted:#9da5b2;
+  --theme-border:#3a3f49; --theme-input:#1b1e24;
+}
+.app-theme.theme-dark.accent-sky { --accent:#75c3f6; --accent-soft:#203748; --accent-contrast:#102f46; }
+.app-theme.theme-dark.accent-blue { --accent:#69b1ff; --accent-soft:#203348; --accent-contrast:#17191f; }
+.app-theme.theme-dark.accent-gray { --accent:#aab0bb; --accent-soft:#353840; --accent-contrast:#17191f; }
+.app-theme.theme-dark.accent-teal { --accent:#36cfc9; --accent-soft:#203c3e; --accent-contrast:#17191f; }
+.app-theme.theme-dark.accent-orange { --accent:#ffa940; --accent-soft:#403126; --accent-contrast:#17191f; }
+.app-theme.theme-monet {
+  --accent:#376e65; --accent-soft:#e0eae2; --accent-contrast:#ffffff;
+  --theme-page:#eaf0ed; --theme-surface:#f6f0df; --theme-surface-muted:#e9e6d8;
+  --theme-text:#234b45; --theme-text-secondary:#435e59; --theme-text-muted:#4b605b;
+  --theme-border:#c9dbd4; --theme-input:#fbf7ed;
+}
+.app-theme.theme-monet .ui-page {
+  background:radial-gradient(ellipse at 100% 12%,rgba(190,184,221,.48),transparent 37%),
+    radial-gradient(ellipse at 0 34%,rgba(189,215,200,.7),transparent 40%),
+    linear-gradient(155deg,#edf4e7,#e3ecef 38%,#edf2e9 75%,#e7edf3);
+}
+.theme-monet .ui-page-heading { border:0; padding-bottom:10px; }
+.theme-monet .ui-page-title { font-family:"Songti SC","STSong","SimSun",serif; letter-spacing:1px; font-size:30px; }
+.app-theme.theme-xiaoyin {
+  --accent:#3b6c99; --accent-soft:#e4eef8; --accent-contrast:#ffffff;
+  --theme-page:#f1f7fc; --theme-surface:#ffffff; --theme-surface-muted:#eaf1f8;
+  --theme-text:#23415f; --theme-text-secondary:#526b82; --theme-text-muted:#526b82;
+  --theme-border:#cbdcec; --theme-input:#f4f8fc;
+}
+.app-theme.theme-xiaoyin .ui-page { background:linear-gradient(165deg,#e8f3fd,#f5f9fd 360px,#f1f7fc); }
+.theme-xiaoyin .ui-page-title { letter-spacing:.5px; }
