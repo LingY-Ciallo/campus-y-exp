@@ -1,0 +1,172 @@
+<view class="app-theme theme-{{appearanceTheme}} accent-{{appearanceAccent}}">
+  <view class="container ui-page experiment-page">
+    <view class="ui-page-heading">
+      <text class="ui-page-kicker">实验工具 · 大学物理实验</text>
+      <text class="ui-page-title">拉脱法测液体表面张力系数</text>
+      <text class="ui-page-description">力敏传感器先称砝码定标得到灵敏度 K，再由圆环拉脱液面时的电压差求表面张力 F，除以圆环周长得到表面张力系数 a。</text>
+    </view>
+
+    <view class="section preview-section" wx:if="{{demoMode}}">
+      <view class="section-heading"><text class="section-title">外观预览</text><text class="status-tag">仅开发示例</text></view>
+      <view class="preview-grid">
+        <picker mode="selector" range="{{themeNames}}" value="{{themeIndex}}" bindchange="onThemeChange" aria-label="选择预览主题">
+          <view class="picker-control"><text>主题</text><text class="picker-value">{{themeNames[themeIndex]}} ›</text></view>
+        </picker>
+        <picker mode="selector" range="{{accentNames}}" value="{{accentIndex}}" bindchange="onAccentChange" aria-label="选择强调色">
+          <view class="picker-control"><text>强调色</text><text class="picker-value">{{accentNames[accentIndex]}} ›</text></view>
+        </picker>
+      </view>
+      <text class="helper-text">莫奈、小音使用各自配色；浅色、深色支持切换强调色。</text>
+    </view>
+
+    <view class="section">
+      <view class="section-heading"><text class="section-title">方法与常量</text><text class="step-label">01</text></view>
+      <text class="helper-text record-help">三步走：先用 8 组砝码给力敏传感器定标（逐差法）得 K，再测圆环脱离液面时的电压差 ΔU，最后按 F = ΔU / K、a = F / [π(D̄1 + D̄2)] 算出表面张力系数。</text>
+      <view class="result-row"><text class="result-label">灵敏度 K</text><text class="value">ΔU/Δm ÷ 10（V/N）</text></view>
+      <view class="result-row"><text class="result-label">表面张力 F</text><text class="value">F = ΔU / K（10⁻³ N）</text></view>
+      <view class="result-row"><text class="result-label">圆环周长 L</text><text class="value">L = π(D̄1 + D̄2)</text></view>
+      <view class="result-row"><text class="result-label">表面张力系数 a</text><text class="value">a = F / L（N/m）</text></view>
+      <text class="helper-text">定标折算按随堂数据表的写法：Δm 用 g、ΔU 用 mV 时，除以 10 即把 Δm·g 换成 ΔF，等价于 g 取 10 m/s²。Δm 用 g、电压用 mV 输入，内部换算为国际单位。</text>
+    </view>
+
+    <view class="section">
+      <view class="section-heading"><text class="section-title">力敏传感器定标</text><text class="step-label">02</text></view>
+      <text class="helper-text record-help">8 组砝码 0～3.5 g（步长 0.5 g），逐个记录传感器电压读数，单位 mV。逐差法把前 4 组与后 4 组的平均值相减，不用单点斜率。0 是合法读数（零点），不能留空。</text>
+
+      <view class="calib-head">
+        <text class="calib-index">组</text>
+        <text class="calib-cell">m/g</text>
+        <text class="calib-cell">U/mV</text>
+      </view>
+      <view class="calib-row" wx:for="{{calibration}}" wx:for-item="row" wx:for-index="ci" wx:key="id">
+        <text class="calib-index">{{ci + 1}}</text>
+        <input class="input calib-input" type="text" maxlength="16" value="{{row.mass}}" data-index="{{ci}}" data-field="mass" bindinput="onCalibrationInput" placeholder="0.5" placeholder-class="input-placeholder" aria-label="定标第 {{ci + 1}} 组砝码质量" />
+        <input class="input calib-input" type="text" maxlength="16" value="{{row.voltage}}" data-index="{{ci}}" data-field="voltage" bindinput="onCalibrationInput" placeholder="14.2" placeholder-class="input-placeholder" aria-label="定标第 {{ci + 1}} 组电压" />
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-heading"><text class="section-title">圆环尺寸</text><text class="step-label">03</text></view>
+      <text class="helper-text record-help">圆环内、外径各测 5 次，取算术平均（mm）。拉脱时表面张力沿内外两个圆周作用，周长取 L = π(D̄1 + D̄2)。</text>
+      <view class="record-block">
+        <text class="field-label">内径 D1（mm）</text>
+        <view class="reading-row">
+          <input class="input reading-input" wx:for="{{diameters.d1}}" wx:for-item="cell" wx:for-index="di" wx:key="id" type="text" maxlength="16" value="{{cell.value}}" data-field="d1" data-index="{{di}}" bindinput="onDiameterInput" placeholder="32.92" placeholder-class="input-placeholder" aria-label="内径第 {{di + 1}} 次" />
+        </view>
+      </view>
+      <view class="record-block">
+        <text class="field-label">外径 D2（mm）</text>
+        <view class="reading-row">
+          <input class="input reading-input" wx:for="{{diameters.d2}}" wx:for-item="cell" wx:for-index="di" wx:key="id" type="text" maxlength="16" value="{{cell.value}}" data-field="d2" data-index="{{di}}" bindinput="onDiameterInput" placeholder="34.80" placeholder-class="input-placeholder" aria-label="外径第 {{di + 1}} 次" />
+        </view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-heading"><text class="section-title">液体测量</text><text class="step-label">04</text></view>
+      <text class="helper-text record-help">每种液体测 6 次：U1 是圆环浸在液体中、拉脱前的电压，U2 是圆环刚脱离液面瞬间的电压（可以为负）。ΔU = U1 − U2 必须为正，填反了会提示。</text>
+
+      <view class="group-card" wx:for="{{liquids}}" wx:for-item="liquid" wx:for-index="li" wx:key="id">
+        <view class="group-heading">
+          <text class="group-title">{{liquid.name}}</text>
+          <text class="group-hint">6 次 U1、U2</text>
+        </view>
+        <view class="liquid-head">
+          <text class="liquid-index">次</text>
+          <text class="liquid-cell">U1/mV</text>
+          <text class="liquid-cell">U2/mV</text>
+        </view>
+        <view class="liquid-row" wx:for="{{liquid.rows}}" wx:for-item="row" wx:for-index="ri" wx:key="id">
+          <text class="liquid-index">{{ri + 1}}</text>
+          <input class="input liquid-input" type="text" maxlength="16" value="{{row.u1}}" data-liquid="{{li}}" data-index="{{ri}}" data-field="u1" bindinput="onLiquidInput" placeholder="49.3" placeholder-class="input-placeholder" aria-label="{{liquid.name}} 第 {{ri + 1}} 次 U1" />
+          <input class="input liquid-input" type="text" maxlength="16" value="{{row.u2}}" data-liquid="{{li}}" data-index="{{ri}}" data-field="u2" bindinput="onLiquidInput" placeholder="0.1" placeholder-class="input-placeholder" aria-label="{{liquid.name}} 第 {{ri + 1}} 次 U2" />
+        </view>
+      </view>
+
+      <view class="record-actions">
+        <button class="secondary-button" bindtap="loadExample">载入示例</button>
+      </view>
+    </view>
+
+    <view class="action-section">
+      <view class="error-message" wx:if="{{error}}" role="alert">{{error}}</view>
+      <button class="calculate-btn" bindtap="calculate">计算表面张力系数</button>
+      <button class="reset-button" bindtap="resetForm">清空本次数据</button>
+    </view>
+
+    <view class="section result-section" wx:if="{{result}}">
+      <view class="section-heading"><text class="section-title">表面张力系数</text><text class="status-tag">a = F / [π(D̄1+D̄2)]</text></view>
+      <view class="liquid-result" wx:for="{{result.liquids}}" wx:key="name">
+        <text class="result-caption">{{item.name}}（{{item.count}} 次平均）</text>
+        <view class="result-main"><text class="result-number">{{item.meanAText}}</text><text class="result-unit">N/m</text></view>
+      </view>
+      <text class="helper-text" wx:if="{{result.verdict}}">{{result.verdict}}</text>
+      <view class="result-row"><text class="result-label">定标灵敏度 K</text><text class="value">{{result.calibration.kText}} V/N</text></view>
+      <view class="result-row"><text class="result-label">圆环内径 D̄1</text><text class="value">{{result.diameters.d1Text}} mm（{{result.diameters.d1Count}} 次）</text></view>
+      <view class="result-row"><text class="result-label">圆环外径 D̄2</text><text class="value">{{result.diameters.d2Text}} mm（{{result.diameters.d2Count}} 次）</text></view>
+      <view class="result-row"><text class="result-label">圆环周长 L</text><text class="value">{{result.diameters.loopText}} mm</text></view>
+      <text class="helper-text">定标把 Δm(g) 换算成 ΔF(N) 时除以 {{result.divisorText}}，等价于 g 取 10 m/s²，与随堂数据表一致。</text>
+    </view>
+
+    <view class="section" wx:if="{{result}}">
+      <view class="section-heading"><text class="section-title">定标逐差</text><text class="step-label">前 4 组 / 后 4 组</text></view>
+      <view class="result-row"><text class="result-label">前 4 组平均电压</text><text class="value">{{result.calibration.frontVoltText}} mV</text></view>
+      <view class="result-row"><text class="result-label">后 4 组平均电压</text><text class="value">{{result.calibration.backVoltText}} mV</text></view>
+      <view class="result-row"><text class="result-label">电压差 ΔU</text><text class="value">{{result.calibration.deltaVoltText}} mV</text></view>
+      <view class="result-row"><text class="result-label">质量差 Δm</text><text class="value">{{result.calibration.deltaMassText}} g</text></view>
+      <view class="result-row"><text class="result-label">斜率 ΔU/Δm</text><text class="value">{{result.calibration.slopeText}} mV/g</text></view>
+      <view class="result-row"><text class="result-label">灵敏度 K</text><text class="value">{{result.calibration.kText}} V/N</text></view>
+    </view>
+
+    <block wx:if="{{result}}">
+      <view class="section" wx:for="{{result.liquids}}" wx:for-item="liquid" wx:key="name">
+        <view class="section-heading"><text class="section-title">{{liquid.name}}逐次结果</text><text class="step-label">ΔU → F → a</text></view>
+        <scroll-view class="experiment-table-scroll" scroll-x="{{true}}">
+          <view class="detail-table">
+            <view class="detail-row table-heading">
+              <text class="detail-cell index-cell">次</text>
+              <text class="detail-cell">U1/mV</text>
+              <text class="detail-cell">U2/mV</text>
+              <text class="detail-cell">ΔU/mV</text>
+              <text class="detail-cell">F/mN</text>
+              <text class="detail-cell">a/(N/m)</text>
+            </view>
+            <view class="detail-row" wx:for="{{liquid.rows}}" wx:key="index">
+              <text class="detail-cell index-cell">{{item.index}}</text>
+              <text class="detail-cell">{{item.u1Text}}</text>
+              <text class="detail-cell">{{item.u2Text}}</text>
+              <text class="detail-cell">{{item.dUText}}</text>
+              <text class="detail-cell">{{item.fText}}</text>
+              <text class="detail-cell">{{item.aText}}</text>
+            </view>
+          </view>
+        </scroll-view>
+        <text class="helper-text record-help">F 单位 10⁻³ N（mN），保留 4 位小数；a 单位 N/m，保留 5 位小数。</text>
+      </view>
+    </block>
+
+    <view class="section" wx:if="{{result}}">
+      <view class="section-heading"><text class="section-title">U–m 定标关系</text><text class="step-label">散点 + 逐差斜率</text></view>
+      <view class="chart" style="width:{{result.calibration.plot.width}}rpx;height:{{result.calibration.plot.height}}rpx">
+        <view class="chart-axis chart-axis-y" style="left:{{result.calibration.plot.padLeft}}rpx;top:{{result.calibration.plot.padTop}}rpx;height:{{result.calibration.plot.innerHeight}}rpx"></view>
+        <view class="chart-axis chart-axis-x" style="left:{{result.calibration.plot.padLeft}}rpx;top:{{result.calibration.plot.axisY}}rpx;width:{{result.calibration.plot.innerWidth}}rpx"></view>
+        <view class="chart-line" style="left:{{result.calibration.plot.line.left}}rpx;top:{{result.calibration.plot.line.top}}rpx;width:{{result.calibration.plot.line.width}}rpx;transform:rotate({{result.calibration.plot.line.angle}}deg)"></view>
+        <view class="chart-dot" wx:for="{{result.calibration.plot.points}}" wx:key="index" style="left:{{item.left}}rpx;top:{{item.top}}rpx"></view>
+        <text class="chart-tick chart-tick-y" wx:for="{{result.calibration.plot.yTicks}}" wx:key="index" style="right:{{item.right}}rpx;top:{{item.top}}rpx">{{item.text}}</text>
+        <text class="chart-tick chart-tick-x" wx:for="{{result.calibration.plot.xTicks}}" wx:key="index" style="left:{{item.left}}rpx;top:{{item.top}}rpx">{{item.text}}</text>
+      </view>
+      <text class="chart-caption">横轴 m / g，纵轴 U / mV</text>
+      <text class="helper-text record-help">直线过原点、斜率为逐差法得到的 ΔU/Δm，用来目视检查 8 组定标读数是否成线性。</text>
+      <button class="secondary-button copy-button" bindtap="copyResult">复制结果与原始数据</button>
+    </view>
+
+    <view class="formula-note">
+      <text class="note-title">本页使用的公式</text>
+      <text>定标 K = [(Ū后 − Ū前) / (m̄后 − m̄前)] ÷ 10</text>
+      <text>电压差 ΔU = U1 − U2</text>
+      <text>表面张力 F = ΔU / K</text>
+      <text>表面张力系数 a = F / [π(D̄1 + D̄2)]</text>
+      <text class="helper-text">砝码按 g、电压按 mV、直径按 mm 输入，内部换算为国际单位；a 的单位是 N/m。数据不联网、不自动保存。</text>
+    </view>
+  </view>
+</view>
