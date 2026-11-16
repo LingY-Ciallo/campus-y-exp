@@ -34,3 +34,5 @@ jobs:
         run: npm test --prefix experiments/bending-modulus/demo
       - name: Run torsion-inertia demo tests
         run: npm test --prefix experiments/torsion-inertia/demo
+      - name: Run surface-tension demo tests
+        run: npm test --prefix experiments/surface-tension/demo
