@@ -1,0 +1,7 @@
+{
+  "name": "campus-y-exp-surface-tension",
+  "version": "0.0.0",
+  "private": true,
+  "description": "拉脱法测液体表面张力系数独立演示小程序",
+  "scripts": { "test": "node --test tests/*.test.cjs" }
+}
