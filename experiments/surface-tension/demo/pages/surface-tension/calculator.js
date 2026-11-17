@@ -4,10 +4,13 @@
 //
 // 方法链（与随堂数据表一致）：
 //   1) 力敏传感器定标（逐差法，8 组砝码对半分）：
-//        K = [ mean(U5..U8) − mean(U1..U4) ] / [ mean(m5..m8) − mean(m1..m4) ] / 10
-//      ΔU 用 mV、Δm 用 g 时，ΔU/Δm 的单位是 mV/g；除以 10 是数据表的折算约定
-//      （ΔF = Δm·g，g 取 10 m/s²：m[g]/100 = ΔF[N]），得到 K 的单位 V/N
-//   2) 圆环内径 D1、外径 D2 各测 5 次，取算术平均
+//        斜率 s = [ mean(U5..U8) − mean(U1..U4) ] / [ mean(m5..m8) − mean(m1..m4) ]   单位 mV/g
+//        灵敏度 K = s ÷ 10                                                            单位 V/N
+//      这里有两步换算，不要混为一谈：
+//        ① 质量换力：ΔF(N) = Δm(g) × 10⁻³ kg/g × 10 m/s² = Δm(g) / 100（g 取 10 m/s²）
+//        ② 斜率换 K：ΔU 由 mV 换 V（×10⁻³），ΔF 由 g 换 N（×100），合计 s × 10⁻³ × 100 = s / 10
+//      也就是说「除以 10」只发生在第 ② 步（斜率 → 灵敏度），不是把质量换成力。
+//   2) 圆环内径 D1、外径 D2 各测 5 次，取算术平均；要求 D̄2 > D̄1（否则内外径填反）
 //   3) 每次测量：ΔU = U1 − U2（拉脱前、拉脱后的电压读数差）
 //   4) F = ΔU / K。ΔU 用 mV、K 用 V/N 时，F 的单位自动是 10⁻³ N（mN）
 //   5) a = F / [π(D̄1 + D̄2)]。F 用 10⁻³ N、D 用 mm 时，a 的单位自动是 N/m
@@ -16,8 +19,11 @@
 
 const PI = Math.PI;
 
-// 定标折算常量：Δm[g] 折算成 ΔF[N] 时除以 100，等价于 (ΔU/Δm)/10，见文件头说明
-const CALIB_DIVISOR = 10;
+// 质量换力：Δm(g) → ΔF(N) 除以 100（g 取 10 m/s²）
+const MASS_TO_FORCE_DIVISOR = 100;
+
+// 斜率换灵敏度：ΔU/Δm（mV/g）→ K（V/N）时除以 10，见文件头第 ② 步
+const SLOPE_DIVISOR = 10;
 
 // 图表用 rpx 坐标：宽度决定在手机上的实际尺寸
 // padLeft 需容纳纵轴刻度（形如 114.1 在 10px 字号下约 30px，320px 屏上 120rpx ≈ 51px）
@@ -107,7 +113,8 @@ function calibrationOf(source) {
   }
 
   const slope = deltaVolt / deltaMass; // mV/g
-  const k = slope / CALIB_DIVISOR; // V/N
+  // 第 ② 步：mV/g → V/N，mV→V 的 1e-3 与 g→N 的 100 相消，即除以 10
+  const k = slope / SLOPE_DIVISOR; // V/N
   if (!(k > 0)) return { error: '力敏传感器灵敏度 K 计算异常（≤0），请检查定标数据' };
 
   return {
@@ -218,6 +225,12 @@ function compute(input) {
   if (d1.error) return d1;
   const d2 = diameterAverage((source.diameters || {}).d2, '外径 D2');
   if (d2.error) return d2;
+  // 周长只用到两者之和，填反了结果照样出得来，必须显式拦下
+  if (!(d2.value > d1.value)) {
+    return {
+      error: `外径 D2 平均值（${trim(d2.value, 6)} mm）必须大于内径 D1 平均值（${trim(d1.value, 6)} mm），请检查内外径是否填反`,
+    };
+  }
   const loopLength = PI * (d1.value + d2.value); // mm，圆环周长 π(D1+D2)
 
   const liquidSources = Array.isArray(source.liquids) ? source.liquids : [];
@@ -289,7 +302,8 @@ function compute(input) {
       },
       liquids,
       verdict,
-      divisorText: String(CALIB_DIVISOR),
+      massToForceDivisorText: String(MASS_TO_FORCE_DIVISOR),
+      slopeDivisorText: String(SLOPE_DIVISOR),
     },
   };
 }
@@ -301,5 +315,6 @@ module.exports = {
   CALIB_ROWS,
   DIAMETER_ROWS,
   LIQUID_ROWS,
-  CALIB_DIVISOR,
+  MASS_TO_FORCE_DIVISOR,
+  SLOPE_DIVISOR,
 };

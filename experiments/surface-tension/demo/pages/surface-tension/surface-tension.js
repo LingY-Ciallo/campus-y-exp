@@ -271,7 +271,8 @@ Page({
     if (result.verdict) {
       lines.push('', `判读：${result.verdict}`);
     }
-    lines.push(`说明：定标按数据表约定把 Δm(g) 换算成 ΔF(N) 时除以 ${result.divisorText}（等价于 g 取 10 m/s²）；`
+    lines.push(`说明：定标分两步——ΔF(N) = Δm(g) / ${result.massToForceDivisorText}（g 取 10 m/s²），`
+      + `斜率 ΔU/Δm（mV/g）换成 K（V/N）时除以 ${result.slopeDivisorText}；`
       + '表面张力系数 a 的单位是 N/m，不是 mN/m。');
 
     wx.setClipboardData({

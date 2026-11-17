@@ -26,7 +26,7 @@
       <view class="result-row"><text class="result-label">表面张力 F</text><text class="value">F = ΔU / K（10⁻³ N）</text></view>
       <view class="result-row"><text class="result-label">圆环周长 L</text><text class="value">L = π(D̄1 + D̄2)</text></view>
       <view class="result-row"><text class="result-label">表面张力系数 a</text><text class="value">a = F / L（N/m）</text></view>
-      <text class="helper-text">定标折算按随堂数据表的写法：Δm 用 g、ΔU 用 mV 时，除以 10 即把 Δm·g 换成 ΔF，等价于 g 取 10 m/s²。Δm 用 g、电压用 mV 输入，内部换算为国际单位。</text>
+      <text class="helper-text">定标是两步换算：① 质量换力，ΔF(N) = Δm(g) / 100（g 取 10 m/s²）；② 斜率换灵敏度，把 ΔU/Δm（mV/g）换成 K（V/N）时才除以 10。Δm 用 g、电压用 mV 输入，内部换算为国际单位。</text>
     </view>
 
     <view class="section">
@@ -105,7 +105,7 @@
       <view class="result-row"><text class="result-label">圆环内径 D̄1</text><text class="value">{{result.diameters.d1Text}} mm（{{result.diameters.d1Count}} 次）</text></view>
       <view class="result-row"><text class="result-label">圆环外径 D̄2</text><text class="value">{{result.diameters.d2Text}} mm（{{result.diameters.d2Count}} 次）</text></view>
       <view class="result-row"><text class="result-label">圆环周长 L</text><text class="value">{{result.diameters.loopText}} mm</text></view>
-      <text class="helper-text">定标把 Δm(g) 换算成 ΔF(N) 时除以 {{result.divisorText}}，等价于 g 取 10 m/s²，与随堂数据表一致。</text>
+      <text class="helper-text">定标分两步：ΔF(N) = Δm(g) / {{result.massToForceDivisorText}}（g 取 10 m/s²）；斜率 ΔU/Δm（mV/g）换成 K（V/N）时除以 {{result.slopeDivisorText}}。与随堂数据表一致。</text>
     </view>
 
     <view class="section" wx:if="{{result}}">

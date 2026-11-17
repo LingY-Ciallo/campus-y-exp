@@ -120,7 +120,8 @@ test('复制文案逐次列出直径与每次电压，再给定标与平均结�
   assert.match(text, /平均 a = 0\.08255 N\/m/);
   assert.match(text, /平均 a = 0\.07310 N\/m/);
   assert.match(text, /判读：盐水平均表面张力系数大于水/);
-  assert.match(text, /除以 10（等价于 g 取 10 m\/s²）/);
+  assert.match(text, /定标分两步——ΔF\(N\) = Δm\(g\) \/ 100（g 取 10 m\/s²）/);
+  assert.match(text, /斜率 ΔU\/Δm（mV\/g）换成 K（V\/N）时除以 10/);
 });
 
 test('复制文案里每种液体 6 次读数一次不落', () => {
@@ -170,6 +171,18 @@ test('空表单计算提示先补定标，U1、U2 填反会点名到第几次', 
   flipped.page.calculate();
   assert.match(flipped.page.data.error, /盐水第 2 次 U1 − U2 ≤ 0/);
   assert.equal(flipped.page.data.result, null);
+});
+
+test('内外径填反时页面拦下并提示，不出结果', () => {
+  const { page } = createPage();
+  page.loadExample();
+  const inner = page.data.diameters.d1.map((cell) => cell.value);
+  const outer = page.data.diameters.d2.map((cell) => cell.value);
+  page.data.diameters.d1 = outer.map((value, id) => ({ id, value }));
+  page.data.diameters.d2 = inner.map((value, id) => ({ id, value }));
+  page.calculate();
+  assert.match(page.data.error, /外径 D2 平均值（32\.912 mm）必须大于内径 D1 平均值（34\.784 mm）/);
+  assert.equal(page.data.result, null);
 });
 
 test('清空后回到空表单且不保留结果', () => {

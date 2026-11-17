@@ -7,7 +7,8 @@ const {
   CALIB_ROWS,
   DIAMETER_ROWS,
   LIQUID_ROWS,
-  CALIB_DIVISOR,
+  MASS_TO_FORCE_DIVISOR,
+  SLOPE_DIVISOR,
 } = require('../pages/surface-tension/calculator');
 
 // 实验 8 原始数据：定标砝码 0～3.5 g 共 8 组；内、外径各 5 次；盐水、水各 6 次 U1、U2
@@ -42,7 +43,10 @@ test('定标：逐差法得到斜率 27.9375 mV/g、灵敏度 K = 2.79375 V/N', 
   assert.equal(calibration.deltaMassText, '2');
   assert.equal(calibration.slopeText, '27.9375');
   assert.equal(calibration.kText, '2.79375');
-  assert.equal(result.divisorText, String(CALIB_DIVISOR));
+  assert.equal(result.massToForceDivisorText, String(MASS_TO_FORCE_DIVISOR));
+  assert.equal(result.slopeDivisorText, String(SLOPE_DIVISOR));
+  assert.equal(MASS_TO_FORCE_DIVISOR, 100, 'ΔF(N) = Δm(g) / 100（g 取 10）');
+  assert.equal(SLOPE_DIVISOR, 10, '斜率 mV/g → K V/N 时除以 10');
 });
 
 test('圆环尺寸：内外径取其平均，周长 L = π(D̄1 + D̄2)', () => {
@@ -194,9 +198,31 @@ test('行数与数据表约定一致，平均与数值解析不吞 0', () => {
   assert.equal(CALIB_ROWS, 8);
   assert.equal(DIAMETER_ROWS, 5);
   assert.equal(LIQUID_ROWS, 6);
-  assert.equal(CALIB_DIVISOR, 10);
+  assert.equal(MASS_TO_FORCE_DIVISOR, 100);
+  assert.equal(SLOPE_DIVISOR, 10);
   assert.equal(average(['0', '2']), 1);
   assert.equal(toNumber('0'), 0);
   assert.equal(Number.isNaN(toNumber(' ')), true);
   assert.equal(Number.isNaN(toNumber('1.2.3')), true);
+});
+
+test('内外径填反：外径均值不大于内径均值时直接报错，不给出周长', () => {
+  // 回归：周长只依赖 D̄1 + D̄2，填反了照样能算出 213.628 mm，用户发现不了
+  const flipped = payload();
+  flipped.diameters.d1 = ['35', '35', '35', '35', '35'];
+  flipped.diameters.d2 = ['33', '33', '33', '33', '33'];
+  const outcome = compute(flipped);
+  assert.equal(outcome.error, '外径 D2 平均值（33 mm）必须大于内径 D1 平均值（35 mm），请检查内外径是否填反');
+  assert.equal(outcome.result, undefined);
+
+  // 内外径相等同样拦下
+  const equal = payload();
+  equal.diameters.d1 = ['34', '34', '34', '34', '34'];
+  equal.diameters.d2 = ['34', '34', '34', '34', '34'];
+  assert.match(compute(equal).error, /必须大于内径 D1 平均值（34 mm）/);
+
+  // 正常数据不受影响
+  const ok = compute(payload());
+  assert.equal(ok.error, undefined);
+  assert.equal(ok.result.diameters.d2Text, '34.784');
 });
