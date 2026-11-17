@@ -1,0 +1,132 @@
+<view class="app-theme theme-{{appearanceTheme}} accent-{{appearanceAccent}}">
+  <view class="container ui-page experiment-page">
+    <view class="ui-page-heading">
+      <text class="ui-page-kicker">实验工具 · 大学物理实验</text>
+      <text class="ui-page-title">气垫法测刚体转动惯量</text>
+      <text class="ui-page-description">砝码经细线绕塔轮产生力矩，测动盘转过 1 周与 2 周的用时求角加速度，作 M–α 直线，由斜率得到转动惯量。</text>
+    </view>
+
+    <view class="section preview-section" wx:if="{{demoMode}}">
+      <view class="section-heading"><text class="section-title">外观预览</text><text class="status-tag">仅开发示例</text></view>
+      <view class="preview-grid">
+        <picker mode="selector" range="{{themeNames}}" value="{{themeIndex}}" bindchange="onThemeChange" aria-label="选择预览主题">
+          <view class="picker-control"><text>主题</text><text class="picker-value">{{themeNames[themeIndex]}} ›</text></view>
+        </picker>
+        <picker mode="selector" range="{{accentNames}}" value="{{accentIndex}}" bindchange="onAccentChange" aria-label="选择强调色">
+          <view class="picker-control"><text>强调色</text><text class="picker-value">{{accentNames[accentIndex]}} ›</text></view>
+        </picker>
+      </view>
+      <text class="helper-text">莫奈、小音使用各自配色；浅色、深色支持切换强调色。</text>
+    </view>
+
+    <view class="section">
+      <view class="section-heading"><text class="section-title">方法与常量</text><text class="step-label">01</text></view>
+      <text class="helper-text record-help">每个砝码测两个时间：动盘从同一初态起转过 1 周记为 t1，转过 2 周记为 t2，各测三次取平均。两组时间联立即可消去起始角速度，得到角加速度 α。</text>
+      <view class="result-row"><text class="result-label">重力加速度 g</text><text class="value">9.8 m/s²（固定）</text></view>
+      <view class="result-row"><text class="result-label">塔轮半径 r</text><text class="value">2.00 cm（固定）</text></view>
+      <view class="result-row"><text class="result-label">力矩 M</text><text class="value">M = m·g·r</text></view>
+    </view>
+
+    <view class="section">
+      <view class="section-heading"><text class="section-title">五组测量数据</text><text class="step-label">02</text></view>
+      <text class="helper-text record-help">每组填一个砝码质量和两组时间读数，单位 s。整组留空的行不参与计算；填了一部分会提示缺哪一项。</text>
+
+      <view class="group-card" wx:for="{{groups}}" wx:for-item="group" wx:for-index="gi" wx:key="id">
+        <view class="group-heading">
+          <text class="group-title">第 {{gi + 1}} 组</text>
+          <text class="group-hint">砝码 m 与两组计时</text>
+        </view>
+        <view class="field-item">
+          <text class="field-label">砝码质量 m（g）</text>
+          <input class="input" type="text" maxlength="16" value="{{group.mass}}" data-group="{{gi}}" data-field="mass" bindinput="onInput" placeholder="1 / 2 / 3 / 5 / 8" placeholder-class="input-placeholder" aria-label="第 {{gi + 1}} 组砝码质量" />
+        </view>
+        <view class="record-row">
+          <text class="record-index">t1</text>
+          <input class="input record-input" type="text" maxlength="16" value="{{group.t1[0]}}" data-group="{{gi}}" data-field="t1" data-index="0" bindinput="onInput" placeholder="转过 1 周" placeholder-class="input-placeholder" aria-label="第 {{gi + 1}} 组 t1 第 1 次" />
+          <input class="input record-input" type="text" maxlength="16" value="{{group.t1[1]}}" data-group="{{gi}}" data-field="t1" data-index="1" bindinput="onInput" placeholder="转过 1 周" placeholder-class="input-placeholder" aria-label="第 {{gi + 1}} 组 t1 第 2 次" />
+          <input class="input record-input" type="text" maxlength="16" value="{{group.t1[2]}}" data-group="{{gi}}" data-field="t1" data-index="2" bindinput="onInput" placeholder="转过 1 周" placeholder-class="input-placeholder" aria-label="第 {{gi + 1}} 组 t1 第 3 次" />
+        </view>
+        <view class="record-row">
+          <text class="record-index">t2</text>
+          <input class="input record-input" type="text" maxlength="16" value="{{group.t2[0]}}" data-group="{{gi}}" data-field="t2" data-index="0" bindinput="onInput" placeholder="转过 2 周" placeholder-class="input-placeholder" aria-label="第 {{gi + 1}} 组 t2 第 1 次" />
+          <input class="input record-input" type="text" maxlength="16" value="{{group.t2[1]}}" data-group="{{gi}}" data-field="t2" data-index="1" bindinput="onInput" placeholder="转过 2 周" placeholder-class="input-placeholder" aria-label="第 {{gi + 1}} 组 t2 第 2 次" />
+          <input class="input record-input" type="text" maxlength="16" value="{{group.t2[2]}}" data-group="{{gi}}" data-field="t2" data-index="2" bindinput="onInput" placeholder="转过 2 周" placeholder-class="input-placeholder" aria-label="第 {{gi + 1}} 组 t2 第 3 次" />
+        </view>
+      </view>
+
+      <view class="record-actions">
+        <button class="secondary-button" bindtap="loadExample">载入示例</button>
+      </view>
+    </view>
+
+    <view class="action-section">
+      <view class="error-message" wx:if="{{error}}" role="alert">{{error}}</view>
+      <button class="calculate-btn" bindtap="calculate">计算转动惯量</button>
+      <button class="reset-button" bindtap="resetForm">清空本次数据</button>
+    </view>
+
+    <view class="section result-section" wx:if="{{result}}">
+      <view class="section-heading"><text class="section-title">拟合结果</text><text class="status-tag">M–α 最小二乘</text></view>
+      <view class="result-summary">
+        <text class="result-caption">转动惯量 J（拟合斜率）</text>
+        <view class="result-main"><text class="result-number">{{result.fit.slopeText}}</text><text class="result-unit">kg·m²</text></view>
+      </view>
+      <view class="result-row"><text class="result-label">拟合截距 Mf</text><text class="value">{{result.fit.interceptText}} N·m</text></view>
+      <view class="result-row"><text class="result-label">相关系数 r</text><text class="value">{{result.fit.rText}}</text></view>
+      <view class="result-row"><text class="result-label">有效组数</text><text class="value">{{result.fit.count}} 组</text></view>
+      <view class="result-row"><text class="result-label">实验常量</text><text class="value">g = {{result.gText}} m/s²，r = {{result.radiusText}} cm</text></view>
+      <text class="helper-text">{{result.fit.verdict}}</text>
+      <text class="helper-text">{{result.fit.interceptNote}}</text>
+    </view>
+
+    <view class="section" wx:if="{{result}}">
+      <view class="section-heading"><text class="section-title">各组中间量</text><text class="step-label">t̄ → α → M</text></view>
+      <scroll-view class="experiment-table-scroll" scroll-x="{{true}}">
+        <view class="detail-table">
+          <view class="detail-row table-heading">
+            <text class="detail-cell index-cell">组</text>
+            <text class="detail-cell">m/g</text>
+            <text class="detail-cell">t̄1/s</text>
+            <text class="detail-cell">t̄2/s</text>
+            <text class="detail-cell">α</text>
+            <text class="detail-cell">M/(N·m)</text>
+          </view>
+          <view class="detail-row" wx:for="{{result.groups}}" wx:key="index">
+            <text class="detail-cell index-cell">{{item.index}}</text>
+            <text class="detail-cell">{{item.massText}}</text>
+            <text class="detail-cell">{{item.t1Text}}</text>
+            <text class="detail-cell">{{item.t2Text}}</text>
+            <text class="detail-cell">{{item.alphaText}}</text>
+            <text class="detail-cell">{{item.torqueText}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <text class="helper-text record-help">α 单位 rad/s²，保留 4 位小数；M 单位 N·m，科学计数法 4 位有效数字。</text>
+    </view>
+
+    <view class="section" wx:if="{{result}}">
+      <view class="section-heading"><text class="section-title">M–α 关系</text><text class="step-label">散点 + 拟合直线</text></view>
+      <view class="chart" style="width:{{result.plot.width}}rpx;height:{{result.plot.height}}rpx">
+        <view class="chart-axis chart-axis-y" style="left:{{result.plot.padLeft}}rpx;top:{{result.plot.padTop}}rpx;height:{{result.plot.innerHeight}}rpx"></view>
+        <view class="chart-axis chart-axis-x" style="left:{{result.plot.padLeft}}rpx;top:{{result.plot.axisY}}rpx;width:{{result.plot.innerWidth}}rpx"></view>
+        <view class="chart-zero" wx:if="{{result.plot.zeroTop !== null}}" style="left:{{result.plot.padLeft}}rpx;top:{{result.plot.zeroTop}}rpx;width:{{result.plot.innerWidth}}rpx"></view>
+        <view class="chart-line" style="left:{{result.plot.line.left}}rpx;top:{{result.plot.line.top}}rpx;width:{{result.plot.line.width}}rpx;transform:rotate({{result.plot.line.angle}}deg)"></view>
+        <view class="chart-dot" wx:for="{{result.plot.points}}" wx:key="index" style="left:{{item.left}}rpx;top:{{item.top}}rpx"></view>
+        <text class="chart-tick chart-tick-y" wx:for="{{result.plot.yTicks}}" wx:key="index" style="right:{{item.right}}rpx;top:{{item.top}}rpx">{{item.text}}</text>
+        <text class="chart-tick chart-tick-x" wx:for="{{result.plot.xTicks}}" wx:key="index" style="left:{{item.left}}rpx;top:{{item.top}}rpx">{{item.text}}</text>
+      </view>
+      <text class="chart-caption">横轴 α / (rad·s⁻²)，纵轴 M / (N·m)</text>
+      <text class="helper-text record-help">横轴从 α = 0 起画，便于看清拟合直线在纵轴上的截距；直线超出绘图区的部分已裁掉。</text>
+      <button class="secondary-button copy-button" bindtap="copyResult">复制结果与原始数据</button>
+    </view>
+
+    <view class="formula-note">
+      <text class="note-title">本页使用的公式</text>
+      <text>角加速度 α = 4π(2/t̄2 − 1/t̄1) / (t̄2 − t̄1)</text>
+      <text>力矩 M = m·g·r</text>
+      <text>拟合 M = J·α + Mf</text>
+      <text>相关系数 r = Sxy / √(Sxx·Syy)</text>
+      <text class="helper-text">质量按 g、时间按 s 输入，内部换算为国际单位；g 与 r 为固定常量，数据不联网、不自动保存。</text>
+    </view>
+  </view>
+</view>

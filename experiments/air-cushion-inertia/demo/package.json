@@ -1,0 +1,7 @@
+{
+  "name": "campus-y-exp-air-cushion-inertia",
+  "version": "0.0.0",
+  "private": true,
+  "description": "气垫法测刚体转动惯量独立演示小程序",
+  "scripts": { "test": "node --test tests/*.test.cjs" }
+}
