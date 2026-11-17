@@ -194,17 +194,25 @@ function buildPlot(groups, fit) {
   };
 }
 
+// r 只反映「点是否接近一条直线」，不能推出过原点（正比）。
+// 是否过原点由截距单独判读（interceptNoteOf），两者不能合并成一句话。
 function verdictOf(fit) {
   if (!Number.isFinite(fit.r)) return '相关系数无法计算，请检查各组角加速度是否相同。';
-  if (fit.r >= 0.9995) return 'r 已非常接近 1，M 与 α 严格成正比，刚体转动定律成立。';
-  if (fit.r >= 0.99) return 'r > 0.99，M 与 α 线性关系良好，刚体转动定律成立。';
-  if (fit.r >= 0.95) return 'r 在 0.95～0.99 之间，线性尚可，建议检查读数是否有明显偏差。';
-  return 'r 偏低，M 与 α 的线性关系不明显，建议复核计时与砝码质量。';
+  if (fit.r >= 0.9999) return 'r ≥ 0.9999，M 与 α 高度线性；r 只说明线性程度，是否过原点要看下面的截距。';
+  if (fit.r >= 0.99) return '0.99 ≤ r < 0.9999，M 与 α 线性关系良好；r 只说明线性程度，截距另见下方判读。';
+  if (fit.r >= 0.95) return '0.95 ≤ r < 0.99，线性尚可，建议检查读数是否有明显偏差。';
+  return 'r < 0.95，M 与 α 的线性关系不明显，建议复核计时与砝码质量。';
+}
+
+// 截距一律用科学计数法显示，保留符号与数量级；不再把 |Mf| < 5×10⁻⁷ 抹成 0
+function interceptTextOf(value) {
+  if (!Number.isFinite(value)) return '—';
+  return sci(value, 4);
 }
 
 function interceptNoteOf(fit) {
   if (!Number.isFinite(fit.intercept)) return '';
-  if (Math.abs(fit.intercept) < 1e-12) return '截距为 0，力矩与角加速度严格成正比，未观察到阻力矩。';
+  if (Math.abs(fit.intercept) < 1e-12) return '截距为 0，力矩与角加速度过原点成正比，未观察到阻力矩。';
   if (fit.intercept > 0) {
     return '截距为正，对应轴系阻力矩 Mf；J 取斜率，不受截距影响。';
   }
@@ -283,7 +291,7 @@ function compute(input) {
       slope: fit.slope,
       slopeText: sci(fit.slope, 4),
       intercept: fit.intercept,
-      interceptText: Math.abs(fit.intercept) < 5e-7 ? '0.0000e+0' : sci(fit.intercept, 4),
+      interceptText: interceptTextOf(fit.intercept),
       r: fit.r,
       rText: Number.isFinite(fit.r) ? fit.r.toFixed(4) : '—',
       count: fit.n,
@@ -308,6 +316,8 @@ module.exports = {
   torque,
   leastSquares,
   buildPlot,
+  interceptTextOf,
+  verdictOf,
   G,
   R,
 };

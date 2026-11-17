@@ -97,7 +97,7 @@ test('复制文案逐组列出每次读数，再给汇总与拟合', () => {
   assert.match(text, /转动惯量 J：2\.1715e-3 kg·m²/);
   assert.match(text, /拟合截距 Mf：-1\.2267e-3 N·m/);
   assert.match(text, /相关系数 r：0\.9957/);
-  assert.match(text, /判读：r > 0\.99/);
+  assert.match(text, /判读：0\.99 ≤ r < 0\.9999/);
   assert.match(text, /截距说明：截距为负/);
 });
 

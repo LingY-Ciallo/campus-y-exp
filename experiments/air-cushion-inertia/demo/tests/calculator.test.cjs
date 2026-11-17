@@ -9,6 +9,8 @@ const {
   angularAcceleration,
   torque,
   leastSquares,
+  interceptTextOf,
+  verdictOf,
   G,
   R,
 } = require('../pages/air-cushion-inertia/calculator');
@@ -67,7 +69,7 @@ test('例题：五组的 t̄、α、M 与拟合结果复现实验记录表', () 
   assert.equal(result.fit.interceptText, '-1.2267e-3');
   assert.equal(result.fit.rText, '0.9957');
   assert.equal(result.fit.count, 5);
-  assert.match(result.fit.verdict, /r > 0\.99/);
+  assert.match(result.fit.verdict, /0\.99 ≤ r < 0\.9999/);
   assert.match(result.fit.interceptNote, /截距为负/);
 });
 
@@ -249,4 +251,42 @@ test('工具函数：数字解析与平均', () => {
   assert.equal(multi.value, 2);
   assert.equal(multi.count, 2);
   assert.match(positiveAverage(['1', ' ', 'x'], '时间', 's').error, /第 3 次测量要填数字/);
+});
+
+test('截距格式化：小负值保留符号与数量级，不再抹成 0', () => {
+  // 回归：旧实现 Math.abs(intercept) < 5e-7 时直接显示 0.0000e+0
+  assert.equal(interceptTextOf(-2e-7), '-2.0000e-7');
+  assert.equal(interceptTextOf(-2e-9), '-2.0000e-9');
+  assert.equal(interceptTextOf(-1.2267e-3), '-1.2267e-3');
+  assert.equal(interceptTextOf(0), '0.0000e+0');
+  assert.equal(interceptTextOf(NaN), '—');
+});
+
+test('小负截距端到端：显示 -1.5428e-7，判读一致，r = 1 也不说正比', () => {
+  // 数据由 α = 1 / 2 / 3、M = J·α + Mf（J = 2×10⁻³ kg·m²、Mf = −2×10⁻⁷ N·m）反推，
+  // 截距落在旧实现会被抹成 0 的区间（−5×10⁻⁷ < Mf < 0）
+  const groups = [
+    { mass: '10.203061', t1: ['2.00000', '2.00000', '2.00000'], t2: ['3.30994', '3.30994', '3.30994'] },
+    { mass: '20.407143', t1: ['2.00000', '2.00000', '2.00000'], t2: ['3.01977', '3.01977', '3.01977'] },
+    { mass: '30.611224', t1: ['2.00000', '2.00000', '2.00000'], t2: ['2.84759', '2.84759', '2.84759'] },
+  ];
+  const { result, error } = compute({ groups });
+  assert.equal(error, undefined);
+  const fit = result.fit;
+  assert.ok(fit.intercept < 0 && Math.abs(fit.intercept) < 5e-7);
+  assert.equal(fit.interceptText, '-1.5428e-7');
+  assert.match(fit.interceptNote, /截距为负/);
+  assert.equal(fit.rText, '1.0000');
+  assert.match(fit.verdict, /r ≥ 0\.9999/);
+  assert.doesNotMatch(fit.verdict, /正比/);
+});
+
+test('r 判读只讲线性程度：r = 1 且截距非零时不得称正比', () => {
+  const fit = leastSquares([{ x: 1, y: 3 }, { x: 2, y: 5 }, { x: 3, y: 7 }]);
+  assert.equal(fit.r, 1);
+  assert.equal(fit.intercept, 1);
+  const text = verdictOf(fit);
+  assert.match(text, /r ≥ 0\.9999/);
+  assert.doesNotMatch(text, /正比/);
+  assert.match(text, /截距/);
 });
