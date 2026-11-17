@@ -4,7 +4,7 @@
 - 模板参考校园小音个人中心显示版本 v4.3.3 - “Yutori Natsu”，不自动递增主项目版本。
 - 用户于 2026-11-06 授权首次上传及配置主分支保护；此前“暂不推送”的要求已由本次授权替代。初始化完成后后续更新必须走功能分支和 PR，不直接推送 main、不临时关闭规则或添加绕过。
 - 用户于 2026-11-06 将审核要求改为 LingY-Ciallo 或 LaZYKING233 任意一人批准，替代此前的两人同时批准。
-- 主分支规则集 `Must PR`（ID 26662855）匹配 main 与默认分支：一次有效批准、Code Owner 审核、新提交清除旧批准、最近推送由他人批准、讨论解决、Template tests 通过、禁止删除与强推，bypass_actors 保持空。不为无法归属作者的自动 PR 另加一次批准。
+- 主分支规则集 `Must PR`（ID 26662855）匹配 main 与默认分支：一次有效批准、Code Owner 审核、新提交清除旧批准、讨论解决、Template tests 通过、禁止删除与强推，bypass_actors 保持空。2026-11-17 起 `require_last_push_approval` 为 false，维护者更新其他贡献者的 PR 分支后仍可审批。不为无法归属作者的自动 PR 另加一次批准。
 - 全文件 CODEOWNERS 为 LingY-Ciallo 和 LaZYKING233；其中任意一位的有效批准可满足审核要求。保留 Code Owner 强制审核，不仅依靠审批次数限制用户。
 - GitHub 作者不能自批：LingY-Ciallo 发起的 PR 由 LaZYKING233 审，反之亦然；其他贡献者发起的 PR 由两人任选一人审。不自动设置作者豁免。协作者须接受邀请才能有效审批。
 - 新实验放在 experiments/<slug>/，遵循 CONTRIBUTING.md。CI 默认只读、官方 Action 固定 SHA，不使用高权限事件执行外部 PR 代码。
