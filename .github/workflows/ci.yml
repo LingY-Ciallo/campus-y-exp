@@ -4,7 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]  workflow_dispatch:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -35,4 +36,3 @@ jobs:
         run: npm test --prefix experiments/torsion-inertia/demo
       - name: Run air-cushion-inertia demo tests
         run: npm test --prefix experiments/air-cushion-inertia/demo
-        
